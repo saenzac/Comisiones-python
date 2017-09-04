@@ -2,7 +2,7 @@
 """
 Created on Sun Aug 13 16:00:01 2017
 
-@author: Carlos León
+@author: Calobeto
 
 """
 import abc
@@ -45,6 +45,28 @@ class ReadTxtFile(GenericInputFile):
             df = df.append(df0, ignore_index = True)
         return df
         
+
+class ReadExcelFile(GenericInputFile):
+    #Importación de archivo xlsx que tengan mismo nombre clave. Puede unir varios archivos en carpetas distintas, unir
+    # hojas
+
+    def __init__(self, parameters):       
+        self.parameters = parameters
+        
+    def readFile(self):
+        # lee archivos de una lista, lee multiples hojas
+        
+        filelist = self.parameters['filelist']
+        df = pd.DataFrame()
+        converters = {col : str for col in self.parameters['strcols']}
+        
+        for item in filelist:
+            
+            df0 = pd.read_excel(item, sheetname = self.parameters['presetsheet'], na_values = self.parameters['navalues'], skiprows = self.parameters['skiprows'], converters = converters)                               
+            df = df.append(df0[self.parameters['cols']], ignore_index = True)
+
+        return df
+
         
 class ReadXlsxFile(GenericInputFile):
     #Importación de archivo xlsx que tengan mismo nombre clave. Puede unir varios archivos en carpetas distintas, unir
@@ -83,10 +105,6 @@ class ReadXlsxFile(GenericInputFile):
                     df0.columns = header
                     
                 df = df.append(df0[self.parameters['cols']], ignore_index = True)
-                
-            # Eliminando Columnas y filas sin data 
-            df = df.dropna(axis = 1, how = 'all')
-            df = df.dropna(how = 'all')
 
         return df
        
@@ -128,6 +146,7 @@ class LoadFileProcess(object):
         self.month = month
         self.parser = None
         self.section = None
+        self.defaultpath = None
         self.parameters = None
         
     def configParameters(self): # incluía parser
@@ -148,9 +167,9 @@ class LoadFileProcess(object):
 
         for item in self.parser.options(self.section): # 
             if item == 'skiprows':
-                l2.append(self.parser.getint(self.section,item))
-            elif item == 'cols' or item == 'datadir' or item == 'keyfile' or item == 'defaultdir':
-                l2.append(ast.literal_eval(self.parser.get(self.section,item)))       # importa la lista correctamente
+                l2.append(self.parser.getint(self.section,item))                        # si la opcion es un entero
+            elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols']:
+                l2.append(ast.literal_eval(self.parser.get(self.section,item)))       # si la opcion es una lista
             else:
                 l2.append(self.parser.get(self.section,item))
 
@@ -175,6 +194,7 @@ class LoadFileProcess(object):
         
         self.section = section
         self.configParameters()
+        
         filelist = self.generateInputs()
         self.parameters['filelist'] = filelist
         self.parameters['section'] = section
@@ -182,14 +202,29 @@ class LoadFileProcess(object):
         if self.section == 'Inar_bruto':
             fileobj = ReadTxtFile(self.parameters)
             
+        elif self.section in ['Ingresos', 'Ceses', 'Inar', 'Paquetes']:
+            fileobj = ReadExcelFile(self.parameters)
+            
         else:
             fileobj = ReadXlsxFile(self.parameters)
-           
+        
         df = fileobj.readFile()
+        
+        # Eliminando Columnas y filas sin data 
+        df = df.dropna(axis = 1, how = 'all')
+        df = df.dropna(how = 'all')
         
         df.columns = df.columns.str.lower()
         df.columns = df.columns.str.replace(' ','_')
         df.columns = df.columns.str.replace('/','_')
+        
+        df.replace(',|"|&|\r', '', regex = True, inplace = True)
+
+        # cambio de nombres de columna 
+        if self.parser.has_option(section, 'colstochange'):
+            newcols = dict(zip(self.parameters['colsconverted'], self.parameters['colstochange']))
+            df.rename(columns = newcols, inplace = True)
+
         df.name = section
         
         paramsfile = {'section' : self.section, 'lenght' : len(df)}
@@ -199,6 +234,9 @@ class LoadFileProcess(object):
         
     def setParser(self, parser):
         self.parser = parser
+        
+    def setDefaultPath(self, defaultpath):
+        self.defaultpath = [defaultpath]
         
     def generateInputs(self):
         
@@ -211,3 +249,4 @@ class LoadFileProcess(object):
                     file = os.path.join(directorio, name)
                     filelist.append(file)
         return filelist
+        
