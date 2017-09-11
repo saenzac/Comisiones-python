@@ -113,9 +113,9 @@ class DbDataProcess(object):
         
         self.section = section
         self.configParameters()
-        if section in ['Gross_Comision','Reversiones']:
+        if section in ['Gross_Comision','Reversiones', 'Paquetes']:
             self.parameters['dboperation'] = 'read_complex'
-            ending = ['activacion' if section == 'Gross_Comision' else 'desactivacion']
+            ending = ['activacion' if section in ['Gross_Comision', 'Paquetes'] else 'desactivacion']
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         else:
@@ -152,16 +152,18 @@ class DbDataProcess(object):
             self.parameters['keyperiod'] = keyperiod
         elif operation == 'update':
             if section == 'Bolsas':
-                compute = dc.ComputeBolsas()
-                df = compute.prepareDf(data)
+                computebol = dc.ComputeBolsas()
+                df = computebol.prepareDf(data)
                 
             elif section == 'SumVentaSSAA':
                 compute = dc.ComputeSumSSAA()
                 df = compute.prepareDf(data)
                 
-            elif section == 'Paquetes':
-                compute = dc.ComputePaquetes()
-                df = compute.prepareDf(data)
+            elif section == 'Paquetes':             
+                data = self.loadData('Paquetes')
+                self.parameters['dboperation'] = operation # retomando el proceso update
+                computepaq = dc.ComputePaquetes()
+                df = computepaq.prepareDf(data)
 
             elif section == 'Gross_Comision':
                 rules = self.loadData('tblGrossRules')
@@ -170,12 +172,20 @@ class DbDataProcess(object):
                 
                 data = self.loadData('Gross_Comision')
                 self.parameters['dboperation'] = operation # retomando el proceso update
-                compute = dc.ComputeGrossComision(self.parameters, rules)
-                df = compute.prepareDf(data)
+                computegross = dc.ComputeGrossComision(self.parameters, rules)
+ 
+                df = computegross.prepareDf(data)
             
             elif section ==  'Reversiones':
-          
-                df = compute.prepareDf(data)
+                rules = self.loadData('tblReversionesRules')      
+                rules = rules[rules['state_rule'] != 'not_active']
+                rules.drop(self.parameters['dropcols'], axis = 1, inplace =True)
+                
+                data = self.loadData('Reversiones')
+                self.parameters['dboperation'] = operation # retomando el proceso update
+                computerev = dc.ComputeReversiones(self.parameters, rules)
+                
+                df = computerev.prepareDf(data)
                 
             else:
                 df = data.copy()
@@ -235,7 +245,7 @@ class DbDataProcess(object):
             sql = 'SELECT * FROM ' + tblname
             
         elif parameters['dboperation'] == 'read_complex':
-            sql = 'SELECT * FROM ' + tblname + ' WHERE ' + parameters['keyperiod'] + ' = ' + self.month
+            sql = 'SELECT * FROM ' + parameters['view'] + ' WHERE ' + parameters['keyperiod'] + ' = ' + self.month
         
         querys = {'sql': sql, 'sqldel' : sqldel}
         

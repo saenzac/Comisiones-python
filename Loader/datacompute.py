@@ -156,4 +156,82 @@ class ComputeGrossComision(ComputeProcess):
         df.reset_index(inplace = True)
 
         return df
+
+class ComputeReversiones(ComputeProcess):
+    
+    def __init__(self, params, rules):
+        self.rules = rules
+        self.params = params    
+    
+    def prepareDf(self, data):
         
+        df = data.copy()
+        
+        #self.rules['factor_reversion'] = self.rules['factor_reversion'].astype(float)
+        #self.rules['peso_captura'] = self.rules['peso_captura'].astype(float)
+        
+        #df_rules.drop('tipo_reversion', axis = 1, inplace =True)
+        
+        paramsdeac = {'colsum' : 'deac', 'colsecuence' : ['telefono', 'codigo_padre', 'vendedor_activacion'], 
+                  'colfilter' : 'vendedor_activacion', 'sortlist' : ['vendedor_activacion', 'deac', 'telefono'], 
+                  'booleanlist' : [True, False, True]}
+        
+        
+        # Aplicando Neteos y Filtrando sólo contratos que son deac. Tambien las posiciones que tienen reversiones
+        df = self.neteomanager(paramsdeac, df)
+        df = df[df['posicion_empl'].notnull()] # logins en base de datos de lo contario se eliminan puestos
+
+        
+        positions = self.rules.drop_duplicates(['posicion_empl'], take_last=True)['posicion_empl']
+        df = df[df['posicion_empl'].isin(positions)]  
+        
+        #df.to_csv(testpath +'deacs_neteado.csv') #--- punto de control
+        
+        df['access_total'] = df['access'] + df['accessbolsa'] + df['accesspaquete'] + df['accesslicencia']  
+        df['fecha_proceso'] = pd.to_datetime(df['fecha_proceso'], dayfirst = True, coerce = True)
+        df['fec_activ'] = pd.to_datetime(df['fec_activ'], dayfirst = True, coerce = True)
+        
+        df['dias_desactivados'] = (df['fecha_proceso'] - df['fec_activ']).dt.days # dias calendario
+        
+        df['rango_desactivacion'] = df['dias_desactivados'].apply(lambda x : 'Entre 0 y 90 dias' 
+                                                                      if x < 91 else ('Entre 91 y 180 dias' 
+                                                                                      if x < 181 else 'Mayor a 180 dias' ))
+        df['status_aplicacion'] = 'despues de Marzo 2017'
+        date_before = pd.Timestamp('2017-03-01')
+        df['status_aplicacion'] = df['fec_activ'].apply(lambda x : 'antes de Marzo 2017' if x < date_before 
+                                                        else 'despues de Marzo 2017')
+        
+        DEAC_DEFAULT = 0
+        df[self.params['colchange']] = DEAC_DEFAULT
+        
+        cols = self.rules.columns.tolist()
+        colsfactor = ['factor_reversion','peso_captura','tipo_reversion']
+        
+        #reordering the cols
+
+        colscriterios = [x for x in cols if x not in colsfactor]
+        colsordered = colsfactor + colscriterios
+        self.rules = self.rules[colsordered]       
+
+        #fullrowstochange = []
+
+        for row in self.rules.itertuples():    
+            # Removiendo el indice y las columnas que tienen pesos o factores
+            rowfactor = row[1:len(colsfactor) + 1]
+            factors = rowfactor[0] * rowfactor[1]
+            rowcriterios = row[len(colsfactor) + 1:]               
+            match_list = list(rowcriterios)
+            realindex = [x for x in range(len(match_list)) if match_list[x] != '']
+            criterios = [x for x in match_list if x != '']
+            columns = [colscriterios[x] for x in realindex]
+            rowstochange = df[df[columns].isin(criterios).all(axis = 1)].index.tolist()
+            if rowfactor[2] != 'neteo':
+                df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * factors
+                df.loc[rowstochange, 'tipo_descuento'] = 'reversión'
+            else:
+                df.loc[rowstochange, self.params['colchange']] = 0
+                df.loc[rowstochange, 'tipo_descuento'] = 'neteo'
+            
+            #fullrowstochange = fullrowstochange + rowstochange
+            
+        return df
