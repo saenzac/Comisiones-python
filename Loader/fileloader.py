@@ -13,6 +13,7 @@ from configparser import SafeConfigParser
 import codecs
 import ast
 from Loader import datapreparation as dp
+from datetime import datetime
 
 class GenericInputFile(object):
     __metaclass__ = abc.ABCMeta
@@ -83,7 +84,12 @@ class ReadXlsxFile(GenericInputFile):
         # lee archivos de una lista, lee multiples hojas
         
         filelist = self.parameters['filelist']
-        df = pd.DataFrame()
+        if self.parameters['section'] == 'Tracking':
+            df = pd.DataFrame()
+            df['Datos'] = ''
+        else:    
+            df = pd.DataFrame()
+        cols = []
         
         for item in filelist:
             
@@ -100,31 +106,36 @@ class ReadXlsxFile(GenericInputFile):
                     df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], 
                                          na_values = self.parameters['navalues'])
                 else:
-                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], header = None,
-                                        na_values = self.parameters['navalues'], parse_cols = self.parameters['parsecols'])
+                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], 
+                                         na_values = self.parameters['navalues'], parse_cols = self.parameters['parsecols'])
                 
                 #Eliminando Columnas y filas sin data
                 
                 df0 = df0.dropna(axis = 1, how = 'all')
                 df0 = df0.dropna(how = 'all')
-                                
-                if self.parameters['typeofinf'] == 'Historical':
+
+                if self.parameters['typeofinf'] == 'Historical' :
                     header = self.generateNewHeader(df0.columns.values)
                     df0.columns = header
                 
-                df = df.append(df0[self.parameters['cols']], ignore_index = True)
+                if self.parameters['section'] == 'Tracking':
+                    df = df.merge(df0, on = 'Datos', how = 'right')                    
 
+                else:
+                    df = df.append(df0[self.parameters['cols']], ignore_index = True)
+                           
         return df
        
     def generateNewHeader(self, columns):
         #Genera los encabezados segun formato
-
+        #print(columns[0])
         newheader = []
         MONTH_HEADER = {1:'ene',2:'feb',3:'mar',4:'abr',5:'may',6:'jun',7:'jul',8:'ago',9:'sep',10:'oct',11:'nov',12:'dic'}
         
         #Removiendo 'Datos' temporalmente para trabajar en el formato de fechas
         #print('encabezado : %s'%columns) <-- Control
         dates = columns[1:]
+     
         #print('dates : %s'%dates) # Punto de Test
         for m in dates:
             periodo = MONTH_HEADER[m.month] + '-' + str(m.year)[2:]
@@ -132,6 +143,7 @@ class ReadXlsxFile(GenericInputFile):
         
         #Reinsertando 'Datos' a new_header
         newheader = [columns[0]] + newheader
+
         return newheader        
         
         
@@ -173,14 +185,17 @@ class LoadFileProcess(object):
 
         if self.month:
             periodo = yeardic[self.month]
-
+        
+        #print(periodo)
         l2 = []
 
         for item in self.parser.options(self.section): # 
             if item == 'skiprows':
-                l2.append(self.parser.getint(self.section,item))                        # si la opcion es un entero
-            elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols']:
+                l2.append(self.parser.getint(self.section,item)) # si la opcion es un entero
+                                      
+            elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols']:
                 l2.append(ast.literal_eval(self.parser.get(self.section,item)))       # si la opcion es una lista
+ 
             else:
                 l2.append(self.parser.get(self.section,item))
 
@@ -195,7 +210,8 @@ class LoadFileProcess(object):
             self.parameters['keyfile'] = keyfile
 
         if self.parameters['typeofinf'] == 'Historical':
-            self.parameters['cols'].append(periodo)
+            if self.section != 'Tracking':
+                self.parameters['cols'].append(periodo)
 
         if not self.parameters['datadir'] :
             self.parameters['datadir'] = self.defaultpath
@@ -210,19 +226,19 @@ class LoadFileProcess(object):
         df.columns = df.columns.str.replace(' ','_')
         df.columns = df.columns.str.replace('/','_')
         
-        df.replace(',|"|&|\r', '', regex = True, inplace = True)
+        df.replace('"|&|\r', '', regex = True, inplace = True)
 
         return df
         
     
     def loadFile(self, section):
-        
+             
         self.section = section
         self.configParameters()
-        
+        #print(self.parameters)
         filelist = self.generateInputs()
         self.parameters['filelist'] = filelist
-        self.parameters['section'] = section
+        self.parameters['section'] = section     
         
         if self.section == 'Inar_bruto':
             fileobj = ReadTxtFile(self.parameters)
@@ -234,7 +250,7 @@ class LoadFileProcess(object):
             fileobj = ReadXlsxFile(self.parameters)
         
         df0 = fileobj.readFile()
-        
+
         df = self.adjustDataframe(df0)
 
         # cambio de nombres de columna 
@@ -257,7 +273,7 @@ class LoadFileProcess(object):
         filelist = self.generateInputs()
         self.parameters['filelist'] = filelist
         self.parameters['section'] = section
-        
+
         fileobj = ReadXlsxFile(self.parameters)
         
         df0 = fileobj.readFile()
@@ -272,10 +288,20 @@ class LoadFileProcess(object):
     def prepareHistoricalFiles(self, params):
         
         dfobjhis = dp.HistoricalDataFrame(params)
-        
         df = dfobjhis.prepareCols()
-        
         return df
+        
+    def prepareOtherPlainFiles(self, params):
+        
+        newparams = {'HC' : {'colfilter' : 'cargo', 'item' : 'CONSULTOR', 'colgroupby' : 'datos', 'colsum' : 'vendedores'}, 'Tracking' : {} }
+        ldfs = {}
+        
+        for section in params['sections']:
+            otherobj = dp.OtherPlainDataFrame(newparams[section])     
+            df = otherobj.prepareCols(section,  params[section])
+            ldfs[section] = df
+            
+        return ldfs
              
     def setParser(self, parser):
         self.parser = parser
@@ -297,4 +323,7 @@ class LoadFileProcess(object):
                     file = os.path.join(directorio, name)
                     filelist.append(file)
         return filelist
+        
+    def getParameters(self):
+        return self.parameters
 

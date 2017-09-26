@@ -6,6 +6,7 @@ Created on Sat Sep  2 22:22:44 2017
 """
 import abc
 import pandas as pd
+import numpy as np
 
 class ComputeProcess(object):
     
@@ -92,7 +93,7 @@ class ComputeSumSSAA(ComputeProcess):
         
         df = data.copy()
                
-        df = df[['access_real', 'contrato', 'action_date']].groupby(['contrato']).agg(['sum', 'count']).reset_index()
+        df = df[['access', 'contrato', 'action_date']].groupby(['contrato']).agg(['sum', 'count']).reset_index()
 
         # Aplanando las columnas
         a = df.columns.get_level_values(0)
@@ -100,7 +101,7 @@ class ComputeSumSSAA(ComputeProcess):
         c = [m + str(n) for m,n in zip(b,a)]
         df.columns = c
         df.rename # ver para que sirve
-        df.rename(columns = {'sumaccess_real' : 'accesslicencia', 'countaccess_real' : 'countlicencia'}, inplace = True)
+        df.rename(columns = {'sumaccess' : 'accesslicencia', 'countaccess' : 'countlicencia'}, inplace = True)
         df['accesslicencia'] = df['accesslicencia'].round(2)
             
         return df
@@ -166,12 +167,7 @@ class ComputeReversiones(ComputeProcess):
     def prepareDf(self, data):
         
         df = data.copy()
-        
-        #self.rules['factor_reversion'] = self.rules['factor_reversion'].astype(float)
-        #self.rules['peso_captura'] = self.rules['peso_captura'].astype(float)
-        
-        #df_rules.drop('tipo_reversion', axis = 1, inplace =True)
-        
+              
         paramsdeac = {'colsum' : 'deac', 'colsecuence' : ['telefono', 'codigo_padre', 'vendedor_activacion'], 
                   'colfilter' : 'vendedor_activacion', 'sortlist' : ['vendedor_activacion', 'deac', 'telefono'], 
                   'booleanlist' : [True, False, True]}
@@ -184,15 +180,11 @@ class ComputeReversiones(ComputeProcess):
         
         positions = self.rules.drop_duplicates(['posicion_empl'], take_last=True)['posicion_empl']
         df = df[df['posicion_empl'].isin(positions)]  
-        
-        #df.to_csv(testpath +'deacs_neteado.csv') #--- punto de control
-        
+              
         df['access_total'] = df['access'] + df['accessbolsa'] + df['accesspaquete'] + df['accesslicencia']  
         df['fecha_proceso'] = pd.to_datetime(df['fecha_proceso'], dayfirst = True, coerce = True)
-        df['fec_activ'] = pd.to_datetime(df['fec_activ'], dayfirst = True, coerce = True)
-        
-        df['dias_desactivados'] = (df['fecha_proceso'] - df['fec_activ']).dt.days # dias calendario
-        
+        df['fec_activ'] = pd.to_datetime(df['fec_activ'], dayfirst = True, coerce = True)     
+        df['dias_desactivados'] = (df['fecha_proceso'] - df['fec_activ']).dt.days # dias calendario     
         df['rango_desactivacion'] = df['dias_desactivados'].apply(lambda x : 'Entre 0 y 90 dias' 
                                                                       if x < 91 else ('Entre 91 y 180 dias' 
                                                                                       if x < 181 else 'Mayor a 180 dias' ))
@@ -213,8 +205,6 @@ class ComputeReversiones(ComputeProcess):
         colsordered = colsfactor + colscriterios
         self.rules = self.rules[colsordered]       
 
-        #fullrowstochange = []
-
         for row in self.rules.itertuples():    
             # Removiendo el indice y las columnas que tienen pesos o factores
             rowfactor = row[1:len(colsfactor) + 1]
@@ -231,7 +221,13 @@ class ComputeReversiones(ComputeProcess):
             else:
                 df.loc[rowstochange, self.params['colchange']] = 0
                 df.loc[rowstochange, 'tipo_descuento'] = 'neteo'
-            
-            #fullrowstochange = fullrowstochange + rowstochange
+         
+         # Ingresando el cálculo de penalidad
+         
+            rowspenal = df[df['penalidad'] > 0].index.values
+            df.loc[rowspenal, self.params['colchange']]= -df.loc[rowspenal,'comision_unitaria'] * (1-df.loc[rowspenal,'penalidad'])
             
         return df
+        
+
+            

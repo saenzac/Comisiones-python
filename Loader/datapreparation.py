@@ -166,7 +166,7 @@ class DataframeCleaner(object):
         """ data es objetivos o panel de plataformas """
         
         replvalues1 = 'Objetivo|objetivo|Cuota|cuota'
-        replvalues2 = 'Obj|obj|Obj.'
+        replvalues2 = 'Obj.|Obj|obj'
         replvalues3 = '(- .)$|(- )$|\(\)$|\(\.\)$'
         replvalues4 = 'Venta TPF' # esta secuencia es importante para detectar TPF antes de TP
         replvalues5 = 'Venta TP|Venta TC|Venta Islas'
@@ -243,21 +243,20 @@ class HistoricalDataFrame(DataFramePreparation):
         periodo = self.params['periodo']
         keycol = self.params['keycol']
         loginseq = self.params['logins']
+        metricasconjuntas = self.params['metricasconjuntas']
         kpis = self.params['kpis']
         comisionantes = self.params['comisionantes']
         cuotas = self.params['cuotas']
         resultados = self.params['resultados']
-        periodo = self.params['periodo']
-        metricasconjuntas = self.params['metricasconjuntas']
-        
+     
         powercleaner = DataframeCleaner(keycol, tipo, periodo)
         
         loginseq.rename(columns = {'login_equivalente' : keycol}, inplace = True)      
         kpis = powercleaner.kpiCleaner(kpis)
         panel = powercleaner.wrangler(cuotas, resultados)
-        #print(kpis.columns)
-        #kpist.to_csv(testpath + '_kpis.csv') #---> Punto de Control
-        #panel.to_csv(testpath + '_panel.csv') #---> Punto de Control
+
+        panel.to_csv(testpath + '_panel.csv') #---> Punto de Control
+        loginseq.to_csv(testpath + '_loginseq.csv') #---> Punto de Control
         if self.params['tipo'] == 'voz':        
             panel = powercleaner.fillRows(kpis, panel, keycol, 'metrica')
             panel = powercleaner.rowsChange(loginseq, panel, 'login_real', keycol)
@@ -265,17 +264,16 @@ class HistoricalDataFrame(DataFramePreparation):
             panel.drop_duplicates(subset = [keycol, 'metrica','typeofkpi'], inplace = True)
              #---> Punto de Control
             planilla = powercleaner.superMerge('posición', 'metrica', kpis, panel, comisionantes)
-            nullpositions = planilla[planilla[periodo].isnull()][['posición','metrica','typeofkpi']].drop_duplicates().reset_index(drop=True)
-            #metrics_conjunt = powercleaner.getSupervisor(nullpositions)            
+            nullpositions = planilla[planilla[periodo].isnull()][['posición','metrica','typeofkpi']].drop_duplicates().reset_index(drop=True)            
             valuesposition = powercleaner.detectValues(nullpositions, panel)
             planilla = powercleaner.setValues('posición', valuesposition, planilla)
-            df = powercleaner.powerPivot(planilla)
-            
+         
         elif self.params['tipo'] == 'plataformas':
             panel = powercleaner.fillRows(kpis, panel, keycol, 'metrica')
+            #panel.to_csv(testpath + '_panelpltf_bruto.csv') #---> Punto de Control
             panel = powercleaner.rowsChange(loginseq, panel, 'login_real', keycol)
             panel = powercleaner.fillRows(comisionantes, panel, keycol, keycol)       
-            #panel.to_csv(testpath + month + '_panelpltf.csv') #---> Punto de Control
+            #panel.to_csv(testpath + '_panelpltf_bruto.csv') #---> Punto de Control
             panel = panel[panel['datos'] == panel['metrica']]
             panel.drop_duplicates(subset = [keycol, 'metrica', 'typeofkpi'], inplace = True)
             planilla = powercleaner.superMerge('posición', 'metrica', kpis, panel, comisionantes)
@@ -288,8 +286,9 @@ class HistoricalDataFrame(DataFramePreparation):
             metricsconjunt = metricsconjunt[['nombres', 'metrica', 'typeofkpi', 'posición', 'kam']]
             valuesposition = powercleaner.detectValues(metricsconjunt, panel)
             planilla = powercleaner.setValues('posición', valuesposition, planilla)
-            df = powercleaner.powerPivot(planilla)
             
+        df = powercleaner.powerPivot(planilla)
+        
         #nullpositions.to_csv(testpath + month + '_posiciones_nulas.csv')     # ---> punto de control
         #valuesposition.to_csv(testpath + month + '_metricas_supervisor.csv') # ---> punto de control
         
@@ -323,6 +322,8 @@ class PlainDataFrame(DataFramePreparation):
             df['fec_desactiva'] = pd.to_datetime(df['fec_desactiva'], dayfirst = True, coerce = True)
             if self.params['section'] == 'tblVentas':
                 df['grosscomision'] = df['grosscomercial']
+                df['portabilidad'] = df['cedente'].apply(lambda x: 'Si' if x != 'No Determinado' else 'No')
+                
         
         # Convirtiendo datetime to string
         for col in self.params['coldates']:
@@ -331,4 +332,28 @@ class PlainDataFrame(DataFramePreparation):
 
         return keyperiod, df
 
+class OtherPlainDataFrame(DataFramePreparation):
     
+        def __init__(self, params):
+            self.params = params
+
+        def prepareCols(self, section, data):
+            
+            if section == 'HC':
+                df = data[data[self.params['colfilter']] == self.params['item']]
+                df = pd.DataFrame(df.groupby(self.params['colgroupby'])[self.params['colsum']].count()).reset_index()
+                d = {'datos' : pd.Series(['Consultores en Cuota'], index = [0]), self.params['colsum'] : pd.Series([np.NaN], index = [0])}
+                df = pd.DataFrame(d).append(df).reset_index(drop = True)
+            
+            elif section == 'Tracking':
+                colst = data.columns.tolist()
+                lastperiods = colst[-3:]
+                cols = [colst[0]] + lastperiods
+                
+                df = data[cols]# cambiar por cols
+
+                df['avgtracking'] = df.mean(axis = 1)
+                #df.drop(lastperiods, inplace = True, axis = 1)
+
+                
+            return df

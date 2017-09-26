@@ -34,8 +34,8 @@ class ValidateInar(ValidateDataFrame):
     def validation(self):      
         # Validación de blanks : tipodoc, vendedor, zona, tipodoc
         
-        nocolsjerarquia = ['nombre_vendedor','estado_vendedor','gerencia_1','gerencia_2','canal_de_venta','zona_de_venta',
-                            'supervision_kam','departamento','codigo_inar']
+        nocolsjerarquia = ['nombrevendedor','estadovendedor','gerencia1','gerencia2','canaldeventa','zonaventa',
+                            'supervisorkam','departamento','vendedor']
         nocolsm2m = ['id_empl', 'codigo_inar', 'dni', 'apellido_paterno', 'nombres', 'apellido_materno', 'fecha_ingreso', 
                     'fecha_actualizacion', 'posicion_empl', 'periodo_activacion']
         
@@ -56,9 +56,8 @@ class ValidateInar(ValidateDataFrame):
         blanksvendedor = df0[(df0['vendedor'].isnull()) | (df0['zona'].isnull())]
         blanksvendedor['observacion'] = 'blanks en vendedor o zona'
         
-        vendedorsinjerarquia = df0.merge(self.jerarquia.drop_duplicates(['codigo_inar']),left_on = ['vendedor'], 
-                                        right_on = ['codigo_inar'], how = 'left' )
-        vendedorsinjerarquia = vendedorsinjerarquia[vendedorsinjerarquia['gerencia_2'].isnull()]   
+        vendedorsinjerarquia = df0.merge(self.jerarquia.drop_duplicates(['vendedor']), on = ['vendedor'], how = 'left' )
+        vendedorsinjerarquia = vendedorsinjerarquia[vendedorsinjerarquia['gerencia2'].isnull()]   
         vendedorsinjerarquia.drop(nocolsjerarquia, inplace=True, axis=1)    
         vendedorsinjerarquia['observacion'] = 'vendedor no se encuentra en jerarquia de ventas'
         
@@ -103,20 +102,20 @@ class ValidateMultipleData(ValidateDataFrame):
     def validation(self):      
         
         #importante renombrar la columna codigo_inar en jerarquia
-        self.jerarquia.rename(columns = {'codigo_inar' : 'vendedor'}, inplace = True)
+        #self.jerarquia.rename(columns = {'codigo_inar' : 'vendedor'}, inplace = True)
         
         tblempleados = self.tblempleados[['codigo_inar', 'fecha_cese', 'posicion_empl']]
         comisionantes = self.comisionantes[['login', 'gerencia2', 'zona', 'departamento', 'posición']]
-        jerarquia = self.jerarquia[['canal_vista_negocio', 'gerencia_2', 'zona_de_venta', 'departamento', 'vendedor', 
-                                    'estado_vendedor']]
+        jerarquia = self.jerarquia[['canalvistanegocio', 'gerencia2', 'zonaventa', 'departamento', 'vendedor', 
+                                    'estadovendedor']]
         
         # Observaciones en jerarquia
         
         gerencia2 = ['CORPORACIONES','DESARROLLO NEGOCIOS PYME','GRANDES CLIENTES','SOLUCIONES DE DATOS',
                      'VD PYMES','VENTA REGIONAL EMPRESA']
-        jerarquiadep = jerarquia[(jerarquia['canal_vista_negocio'] == 'EJECUTIVO ENTEL') & 
-                                 (jerarquia['estado_vendedor'] == 'Activo')]
-        jerarquiadep = jerarquiadep[jerarquiadep['gerencia_2'].isin(gerencia2)]
+        jerarquiadep = jerarquia[(jerarquia['canalvistanegocio'] == 'EJECUTIVO ENTEL') & 
+                                 (jerarquia['estadovendedor'] == 'Activo')]
+        jerarquiadep = jerarquiadep[jerarquiadep['gerencia2'].isin(gerencia2)]
         
         emplcesados = tblempleados[(tblempleados['codigo_inar'] != '') & (tblempleados['fecha_cese'] != '')]
         
@@ -131,7 +130,7 @@ class ValidateMultipleData(ValidateDataFrame):
         concomisionantes = comisionantespos[colscomisionantes]
         concomisionantes['concolscom'] = concomisionantes.apply(lambda x : '|'.join(x), axis = 1) # no acepta columnas vacias
         
-        colsjerarquia = ['vendedor','gerencia_2','zona_de_venta','departamento']
+        colsjerarquia = ['vendedor','gerencia2','zonaventa','departamento']
         conjerarquia = jerarquiadep[colsjerarquia] 
         
         conjerarquia['concolsjer'] = conjerarquia.apply(lambda x : '|'.join(x), axis = 1)
@@ -158,13 +157,14 @@ class ValidateMultipleData(ValidateDataFrame):
         df = vendedorinactivo.append(comparezonas, ignore_index= True)
         df = df.append(tblsincodigos, ignore_index = True)
         df = df.append(errorenpuesto, ignore_index = True)
-        df.drop(['canal_vista_negocio', 'estado_vendedor','posicion_empl', 'login', 'vendedor'], axis = 1, inplace =True)
+
+        df.drop(['canalvistanegocio', 'estadovendedor','posicion_empl', 'login', 'vendedor'], axis = 1, inplace =True)
         
-        df = df[['codigo_inar','gerencia2','gerencia_2','zona','zona_de_venta','departamento','departamento_y','posición',
+        df = df[['codigo_inar','gerencia2','gerencia2_x','zona','zonaventa','departamento','departamento_y','posición',
                  'concolscom','concolsjer','fecha_cese','observacion']]
  
         #importante devolver el nombre a codigo_inar en jerarquia
-        self.jerarquia.rename(columns = {'vendedor' : 'codigo_inar'}, inplace = True)
+        #self.jerarquia.rename(columns = {'vendedor' : 'codigo_inar'}, inplace = True)
         
         return df
 

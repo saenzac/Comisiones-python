@@ -113,9 +113,9 @@ class DbDataProcess(object):
         
         self.section = section
         self.configParameters()
-        if section in ['Gross_Comision','Reversiones', 'Paquetes']:
+        if section in ['Gross_Comision','Reversiones', 'Paquetes', 'View_Ventas', 'View_Deacs', 'View_Ventas_SSAA']:
             self.parameters['dboperation'] = 'read_complex'
-            ending = ['activacion' if section in ['Gross_Comision', 'Paquetes'] else 'desactivacion']
+            ending = ['activacion' if section in ['Gross_Comision', 'Paquetes', 'View_Ventas', 'View_Ventas_SSAA'] else 'desactivacion']
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         else:
@@ -187,6 +187,10 @@ class DbDataProcess(object):
                 
                 df = computerev.prepareDf(data)
                 
+            elif section == 'Unitarios':
+                df = data[data['comision_unitaria'] != 0]
+                df.reset_index(inplace = True,drop = True)
+                
             else:
                 df = data.copy()
             
@@ -214,8 +218,20 @@ class DbDataProcess(object):
         paramstable = {'section' : self.section, 'lenght' : len(df), 'comment' : comment}
         self.display(paramstable)
 
+    def downLoadTable(self, operation, section):
+          
+        self.section = section
+        self.configParameters()
+        self.parameters['dboperation'] = operation
+        querys = self.sqlmaker(self.parameters)
         
-
+        dbobj = DbSqLiteOperator(self.parameters)
+        dbobj.openDb()
+        df = dbobj.readTbl(querys)
+        dbobj.closeDb()
+        
+        return df
+        
     def sqlmaker(self, parameters):
         
         """ En insert construye una sentencia SQL. Las columnas no pueden estar con espacios.      
