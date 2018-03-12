@@ -60,7 +60,7 @@ class ReadExcelFile(GenericInputFile):
         filelist = self.parameters['filelist']
         df = pd.DataFrame()
         converters = {col : str for col in self.parameters['strcols']}
-        
+        #print(self.parameters['cols'])
         for item in filelist:
             
             df0 = pd.read_excel(item, sheetname = self.parameters['presetsheet'], na_values = self.parameters['navalues'], skiprows = self.parameters['skiprows'], converters = converters)                               
@@ -74,25 +74,26 @@ class ReadExcelFile(GenericInputFile):
 
         
 class ReadXlsxFile(GenericInputFile):
-    #Importación de archivo xlsx que tengan mismo nombre clave. Puede unir varios archivos en carpetas distintas, unir
-    # hojas
+    #Importación de archivo xlsx que tengan mismo nombre clave. Puede unir varios archivos de carpetas distintas, unir hojas
 
     def __init__(self, parameters):       
         self.parameters = parameters
         
-    def readFile(self):
+    def readFile(self):       
         # lee archivos de una lista, lee multiples hojas
         
         filelist = self.parameters['filelist']
+        #"""        
         if self.parameters['section'] == 'Tracking':
             df = pd.DataFrame()
             df['Datos'] = ''
         else:    
             df = pd.DataFrame()
-        cols = []
+        #""" 
+        #df = pd.DataFrame()
         
         for item in filelist:
-            
+ 
             workbook = pd.ExcelFile(item)
             
             if self.parameters['presetsheet'] == '':
@@ -103,13 +104,12 @@ class ReadXlsxFile(GenericInputFile):
             for sheet in sheets:
 
                 if self.parameters['parsecols'] == 'None':
-                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], 
-                                         na_values = self.parameters['navalues'])
+                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], na_values = self.parameters['navalues'])
                 else:
-                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], 
-                                         na_values = self.parameters['navalues'], parse_cols = self.parameters['parsecols'])
+                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], na_values = self.parameters['navalues'], parse_cols = self.parameters['parsecols'])
                 
                 #Eliminando Columnas y filas sin data
+                #print(df0.columns) # punto de test
                 
                 df0 = df0.dropna(axis = 1, how = 'all')
                 df0 = df0.dropna(how = 'all')
@@ -128,7 +128,7 @@ class ReadXlsxFile(GenericInputFile):
        
     def generateNewHeader(self, columns):
         #Genera los encabezados segun formato
-        #print(columns[0])
+        #print(columns)
         newheader = []
         MONTH_HEADER = {1:'ene',2:'feb',3:'mar',4:'abr',5:'may',6:'jun',7:'jul',8:'ago',9:'sep',10:'oct',11:'nov',12:'dic'}
         
@@ -171,6 +171,7 @@ class LoadFileProcess(object):
         self.section = None
         self.defaultpath = None
         self.parameters = None
+        self.periodo = None
         
     def configParameters(self): # incluía parser
         """ Rutina que importa myconfig.ini y construye el dict"""
@@ -178,13 +179,13 @@ class LoadFileProcess(object):
         """ http://stackoverflow.com/questions/335695/lists-in-configparser """
         """ En caso la data sea Historical se agrega el periodo a la lista cols"""
 
-        yeardic = {'201601':'ene-16','201602':'feb-16','201603':'mar-16','201604':'abr-16','201605':'may-16','201606':'jun-16',
-                   '201607':'jul-16','201608':'ago-16','201609':'sep-16','201610':'oct-16','201611':'nov-16','201612':'dic-16',
-                   '201701':'ene-17','201702':'feb-17','201703':'mar-17','201704':'abr-17','201705':'may-17','201706':'jun-17', 
-                   '201707':'jul-17','201708':'ago-17','201709':'sep-17','201710':'oct-17','201711':'nov-17','201712':'dic-17'}    
+        yeardic = {'201701':'ene-17','201702':'feb-17','201703':'mar-17','201704':'abr-17','201705':'may-17','201706':'jun-17', 
+                   '201707':'jul-17','201708':'ago-17','201709':'sep-17','201710':'oct-17','201711':'nov-17','201712':'dic-17',
+                   '201801':'ene-18','201802':'feb-18','201803':'mar-18','201804':'abr-18','201805':'may-18','201806':'jun-18',
+                   '201807':'jul-18','201808':'ago-18','201809':'sep-18','201810':'oct-18','201811':'nov-18','201812':'dic-18',}    
 
         if self.month:
-            periodo = yeardic[self.month]
+            self.periodo = yeardic[self.month]
         
         #print(periodo)
         l2 = []
@@ -204,14 +205,13 @@ class LoadFileProcess(object):
         keyfile = self.parameters['keyfile']
         if self.month :
             self.parameters['keyfile'] = [self.month + item for item in self.parameters['keyfile']]
-            self.parameters['periodo'] = periodo
+            self.parameters['periodo'] = self.periodo
 
         if self.section == 'Logins' or self.section == 'Metricas_conjuntas':
             self.parameters['keyfile'] = keyfile
 
         if self.parameters['typeofinf'] == 'Historical':
-            if self.section != 'Tracking':
-                self.parameters['cols'].append(periodo)
+            self.parameters['cols'].append(self.periodo)
 
         if not self.parameters['datadir'] :
             self.parameters['datadir'] = self.defaultpath
@@ -222,7 +222,8 @@ class LoadFileProcess(object):
 
         df = data.copy()
         
-        df.columns = df.columns.str.lower()
+        #df.columns = df.columns.str.lower() # Convierte los encabezados en minisculas
+        df.columns = df.columns.str.upper() # Convierte los encabezados en mayúsculas
         df.columns = df.columns.str.replace(' ','_')
         df.columns = df.columns.str.replace('/','_')
         
@@ -291,17 +292,20 @@ class LoadFileProcess(object):
         df = dfobjhis.prepareCols()
         return df
         
-    def prepareOtherPlainFiles(self, params):
+    def prepareOtherPlainFiles(self, parameters):
         
-        newparams = {'HC' : {'colfilter' : 'cargo', 'item' : 'CONSULTOR', 'colgroupby' : 'datos', 'colsum' : 'vendedores'}, 'Tracking' : {} }
-        ldfs = {}
+        criteria = {'VAS' : {'colgroupby' : ['GERENCIA2' , 'ZONAVENTA', 'DEPARTAMENTO', 'GANADO_POR_VOZ'], 'colsum' : ['GERENCIA2' , 'ZONAVENTA', 'DEPARTAMENTO', 'GANADO_POR_VOZ']},'HC' : {'colfilter' : 'CARGO', 'colfilteritem' : 'CONSULTOR', 'colgroupby' : 'DATOS', 'colsum' : 'VENDEDORES'}}
+        listofdfs = {}
         
-        for section in params['sections']:
-            otherobj = dp.OtherPlainDataFrame(newparams[section])     
-            df = otherobj.prepareCols(section,  params[section])
-            ldfs[section] = df
+        periodo = parameters['periodo']
+        params = parameters['frames']
+        #print(params.keys())
+        for section in params.keys():
+            otherobj = dp.OtherPlainDataFrame(criteria[section])  
+            df = otherobj.prepareCols(section, params[section], periodo)
+            listofdfs[section] = df
             
-        return ldfs
+        return listofdfs
              
     def setParser(self, parser):
         self.parser = parser
@@ -310,7 +314,8 @@ class LoadFileProcess(object):
         self.defaultpath = [defaultpath]
         
     def getPeriodo(self):
-        return self.parameters['periodo']
+        #return self.parameters['periodo']
+        return self.periodo
         
     def generateInputs(self):
         

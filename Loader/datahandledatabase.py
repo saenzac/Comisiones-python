@@ -83,7 +83,7 @@ class DbDataProcess(object):
         self.parser = None
         self.section = None
         self.parameters = None
-        self.dbpath = 'D:/Datos de Usuario/cleon/Documents/Capital Humano/Bases/'
+        self.dbpath = 'D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Bases/'
         self.dbname = 'comisiones3.sqlite'
         
      
@@ -167,8 +167,9 @@ class DbDataProcess(object):
 
             elif section == 'Gross_Comision':
                 rules = self.loadData('tblGrossRules')
-                rules = rules[rules['state_rule'] != 'not_active']
+                rules = rules[rules['STATE_RULE'] != 'not_active']            
                 rules.drop(self.parameters['dropcols'], axis = 1, inplace =True)
+                #rules.to_csv('D:/Datos de Usuario/cleon/Documents/Capital Humano/Data Fuente Comisiones/test/' + 'gross_rules.csv')
                 
                 data = self.loadData('Gross_Comision')
                 self.parameters['dboperation'] = operation # retomando el proceso update
@@ -178,7 +179,7 @@ class DbDataProcess(object):
             
             elif section ==  'Reversiones':
                 rules = self.loadData('tblReversionesRules')      
-                rules = rules[rules['state_rule'] != 'not_active']
+                rules = rules[rules['STATE_RULE'] != 'not_active']
                 rules.drop(self.parameters['dropcols'], axis = 1, inplace =True)
                 
                 data = self.loadData('Reversiones')
@@ -188,7 +189,7 @@ class DbDataProcess(object):
                 df = computerev.prepareDf(data)
                 
             elif section == 'Unitarios':
-                df = data[data['comision_unitaria'] != 0]
+                df = data[data['COMISION_UNITARIA'] != 0]
                 df.reset_index(inplace = True,drop = True)
                 
             else:
