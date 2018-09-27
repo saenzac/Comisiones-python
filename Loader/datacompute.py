@@ -194,17 +194,18 @@ class ComputeReversiones(ComputeProcess):
                                                                       if x < 91 else ('Entre 91 y 180 dias' 
                                                                                       if x < 181 else 'Mayor a 180 dias' ))
         #date1 = pd.Timestamp('2017-03-01')
-        date2 = pd.Timestamp('2017-09-01')
-        df['STATUS_APLICACION'] = df['FEC_ACTIV'].apply(lambda x : 'antes de Septiembre 2017' if x < date2 else 'despues de Septiembre 2017')        
+        #date2 = pd.Timestamp('2017-09-01')
+        #df['STATUS_APLICACION'] = df['FEC_ACTIV'].apply(lambda x : 'antes de Septiembre 2017' if x < date2 else 'despues de Septiembre 2017')        
 
         DEAC_DEFAULT = 0
         df[self.params['colchange']] = DEAC_DEFAULT
         
         cols = self.rules.columns.tolist()
         colsfactor = ['FACTOR_REVERSION','PESO_CAPTURA','TIPO_REVERSION']
+        #i = 0        
         
         #reordering the cols
-
+        #print(cols)
         colscriterios = [x for x in cols if x not in colsfactor]
         colsordered = colsfactor + colscriterios
         self.rules = self.rules[colsordered]       
@@ -212,6 +213,7 @@ class ComputeReversiones(ComputeProcess):
         #self.rules.to_csv('D:/Datos de Usuario/cleon/Documents/Capital Humano/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
         for row in self.rules.itertuples():    
             # Removiendo el indice y las columnas que tienen pesos o factores
+            #i = i + 1
             rowfactor = row[1:len(colsfactor) + 1]
             factors = rowfactor[0] * rowfactor[1]
             rowcriterios = row[len(colsfactor) + 1:]               
@@ -220,18 +222,24 @@ class ComputeReversiones(ComputeProcess):
             criterios = [x for x in match_list if x != '']
             columns = [colscriterios[x] for x in realindex]
             rowstochange = df[df[columns].isin(criterios).all(axis = 1)].index.tolist()
+            #print(rowfactor[2])
             if rowfactor[2] != 'NETEO':
                 df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * factors
-                df.loc[rowstochange, 'TIPO_DESCUENTO'] = 'reversión'
+                df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION'
             else:
+                #print(rowstochange)
                 df.loc[rowstochange, self.params['colchange']] = 0
-                df.loc[rowstochange, 'TIPO_DESCUENTO'] = 'neteo'
+                df.loc[rowstochange, 'TIPO_REVERSION'] = 'NETEO'
+                #print(df.loc[rowstochange, 'TIPO_REVERSION'])
+                #df.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas' + str(i) + '.csv')
          
          # Ingresando el cálculo de penalidad
+            #print(df.columns)
          
             rowspenal = df[df['PENALIDAD'] > 0].index.values
             df.loc[rowspenal, self.params['colchange']]= -df.loc[rowspenal,'COMISION_UNITARIA'] * (1-df.loc[rowspenal,'PENALIDAD'])
             
+        #df.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
         return df
         
 

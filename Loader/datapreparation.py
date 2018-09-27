@@ -47,7 +47,7 @@ class DataframeCleaner(object):
         for i in values_detected.index:
             r1 = values_detected.ix[i].values[0]
             r2 = logins.loc[logins[logins[panelcol] == r1].index, loginscol].values
-            #print(r2) # Punto de Control
+            #print(r2) # Punto de Control - Asegura que no hay duplicados en login equivalentes
             df.loc[df[panelcol] == r1, panelcol] = r2
 
         return df
@@ -264,10 +264,12 @@ class HistoricalDataFrame(DataFramePreparation):
         panel = powercleaner.fillRows(kpis, panel, keycol, 'METRICA')
         
         #Asegurando el orden de las columnas del panel - Importante para usar el procedimiento rowsChange
-        panel = panel[[keycol,'METRICA','TYPEOFKPI',periodo]]        
+        panel = panel[[keycol,'METRICA','TYPEOFKPI',periodo]]    
+        
+        #print(panel.columns)
         
         panel = powercleaner.rowsChange(loginseq, panel, 'LOGIN_REAL', keycol)
-        panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_panel2.csv') #---> Punto de Control        
+        #panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_panel2.csv') #---> Punto de Control        
         
         if tipo == 'plataformas':         
             panel = powercleaner.fillRows(comisionantes, panel, keycol, keycol)
@@ -276,13 +278,13 @@ class HistoricalDataFrame(DataFramePreparation):
         #panel = panel.dropna() 
         panel.drop_duplicates(subset = [keycol, 'METRICA', 'TYPEOFKPI'], inplace = True)
         planilla = powercleaner.superMerge('POSICIÓN', 'METRICA', kpis, panel, comisionantes)
-        panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla1.csv') #---> Punto de Control  
+        #panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla1.csv') #---> Punto de Control  
               
         # Detectando las personas que están sin métrica. Completando datos por posición     
         nullpositions = planilla[planilla[periodo].isnull()][['POSICIÓN', 'KAM', 'METRICA', 'TYPEOFKPI']].drop_duplicates().reset_index(drop=True)
         valuestoset = powercleaner.detectValues(nullpositions, panel)
         planilla = powercleaner.setValues('POSICIÓN', valuestoset, planilla) 
-        planilla.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla2.csv')
+        #planilla.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla2.csv')
         
         # Detectando las personas que están sin métrica.Llenando valores del supervisor al comisionante       
         nullrows = planilla[planilla[periodo].isnull()][['KAM', 'POSICIÓN', 'METRICA', 'TYPEOFKPI']].drop_duplicates().reset_index(drop=True)
@@ -355,6 +357,8 @@ class OtherPlainDataFrame(DataFramePreparation):
 
         def prepareCols(self, section, data, periodo):
             
+            df = pd.DataFrame()
+            
             if section == 'HC':
                 df = data[data[self.params['colfilter']] == self.params['colfilteritem']]
                 df = pd.DataFrame(df.groupby(self.params['colgroupby'])[self.params['colsum']].count()).reset_index()
@@ -363,12 +367,17 @@ class OtherPlainDataFrame(DataFramePreparation):
             # Insertando el nombre del kpi    
                 d = {'DATOS' : pd.Series(['Cantidad de Consultores'], index = [0]), self.params['colsum'] : pd.Series([np.NaN], index = [0])}
                 df = pd.DataFrame(d).append(df).reset_index(drop = True)
-                       
+
+            """             
             elif section == 'VAS':
-                df = pd.DataFrame(df.groupby(self.params['colgroupby'])[self.params['colsum']].sum()).reset_index()
+                
+                for ambito in self.params['colgroupby']:
+                    df = pd.DataFrame(df.groupby(self.params[ambito])[self.params['colsum']].sum()).reset_index()
+                
+            # Insertando el nombre del kpi 
                 d = {'DATOS' : pd.Series(['VAS'], index = [0]), self.params['colsum'] : pd.Series([np.NaN], index = [0])}
                 df = pd.DataFrame(d).append(df).reset_index(drop = True)
-           
+            """
             df.rename(columns = {self.params['colsum']:periodo}, inplace = True)
             
             return df

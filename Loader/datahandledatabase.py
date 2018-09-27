@@ -113,11 +113,18 @@ class DbDataProcess(object):
         
         self.section = section
         self.configParameters()
-        if section in ['Gross_Comision','Reversiones', 'Paquetes', 'View_Ventas', 'View_Deacs', 'View_Ventas_SSAA']:
+        if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz','Reversiones','View_Deacs_SSAA']:
             self.parameters['dboperation'] = 'read_complex'
-            ending = ['activacion' if section in ['Gross_Comision', 'Paquetes', 'View_Ventas', 'View_Ventas_SSAA'] else 'desactivacion']
+            ending = ['activacion' if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz'] else 'desactivacion']
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
+        # El siguiente bloque se elimina una ves que se tome la nueva estructura de obtener la información se usa read_more_periods           
+        elif section in ['View_Ventas','View_Ventas_SSAA','View_Deacs','View_Test']:
+            self.parameters['dboperation'] = 'read_more_periods'
+            ending = ['activacion' if section in ['View_Ventas','View_Ventas_SSAA','View_Test'] else 'desactivacion']
+            keyperiod = 'periodo_' + ending[0]
+            self.parameters['keyperiod'] = keyperiod
+            
         else:
             self.parameters['dboperation'] = 'read'
         
@@ -189,14 +196,18 @@ class DbDataProcess(object):
                 df = computerev.prepareDf(data)
                 
             elif section == 'Unitarios':
-                df = data[data['COMISION_UNITARIA'] != 0]
+                df = data[data['COMISION_UNITARIA'] != 0]                
+                df = df.drop_duplicates(['CONTRATO'], take_last = True)
                 df.reset_index(inplace = True,drop = True)
+                #print(len(df))# control
                 
             else:
                 df = data.copy()
+                #print(df.columns)
             
             self.parameters['cols'] = self.parameters['criterycols'] + self.parameters['colstoupdate'] 
-               
+        
+        #print(self.parameters['cols']) # punto de test
         querys = self.sqlmaker(self.parameters)
         dbobj = DbSqLiteOperator(self.parameters)
         dbobj.openDb()
@@ -263,6 +274,9 @@ class DbDataProcess(object):
             
         elif parameters['dboperation'] == 'read_complex':
             sql = 'SELECT * FROM ' + parameters['view'] + ' WHERE ' + parameters['keyperiod'] + ' = ' + self.month
+            
+        elif parameters['dboperation'] == 'read_more_periods':
+            sql = 'SELECT * FROM ' + parameters['view'] + ' WHERE ' + parameters['keyperiod'] + ' >= ' + self.month
         
         querys = {'sql': sql, 'sqldel' : sqldel}
         

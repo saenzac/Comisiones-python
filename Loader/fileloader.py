@@ -60,15 +60,27 @@ class ReadExcelFile(GenericInputFile):
         filelist = self.parameters['filelist']
         df = pd.DataFrame()
         converters = {col : str for col in self.parameters['strcols']}
-        #print(self.parameters['cols'])
+        #converters_date = {col : datetime for col in self.parameters['colsdatetype']}
+        #converters.update(converters_date)
+        
+        #print(self.parameters) # Control
+        
         for item in filelist:
             
             df0 = pd.read_excel(item, sheetname = self.parameters['presetsheet'], na_values = self.parameters['navalues'], skiprows = self.parameters['skiprows'], converters = converters)                               
             df = df.append(df0[self.parameters['cols']], ignore_index = True)
         
         #Eliminando Columnas y filas sin data
+        
         df = df.dropna(axis = 1, how = 'all')
         df = df.dropna(how = 'all')
+        
+        #Conviertiendo a datatime la lista
+        #print(df.dtypes)
+        #if self.parameters['section'] not in ['Planillas','Comisionantes_voz','Comisionantes_voz','Ingresos','Ceses']:  # self.parameters['section']!='Planillas':
+        if self.parameters.get('colsdatetype') != None:
+            for datevalue in self.parameters['colsdatetype']:
+                df[datevalue] = pd.to_datetime(df[datevalue],'%Y-%m-%d', dayfirst = True)
 
         return df
 
@@ -102,6 +114,8 @@ class ReadXlsxFile(GenericInputFile):
                 sheets = [self.parameters['presetsheet']]
         
             for sheet in sheets:
+                
+                print('Hoja Importada:',sheet)
 
                 if self.parameters['parsecols'] == 'None':
                     df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], na_values = self.parameters['navalues'])
@@ -194,8 +208,8 @@ class LoadFileProcess(object):
             if item == 'skiprows':
                 l2.append(self.parser.getint(self.section,item)) # si la opcion es un entero
                                       
-            elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols']:
-                l2.append(ast.literal_eval(self.parser.get(self.section,item)))       # si la opcion es una lista
+            elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols', 'colsdatetype']: # si en myconfig.ini la opcion es una lista
+                l2.append(ast.literal_eval(self.parser.get(self.section,item)))       
  
             else:
                 l2.append(self.parser.get(self.section,item))
@@ -236,7 +250,7 @@ class LoadFileProcess(object):
              
         self.section = section
         self.configParameters()
-        #print(self.parameters)
+        #print(self.parameters) # Punto de Control
         filelist = self.generateInputs()
         self.parameters['filelist'] = filelist
         self.parameters['section'] = section     
@@ -244,11 +258,11 @@ class LoadFileProcess(object):
         if self.section == 'Inar_bruto':
             fileobj = ReadTxtFile(self.parameters)
             
-        elif self.section in ['Ingresos', 'Ceses', 'Inar', 'Paquetes', 'Planillas', 'Comisionantes_voz', 'Comisionantes_plataformas']:
+        elif self.section in ['Ingresos','Ceses','Inar','Paquetes','Planillas','Comisionantes_voz','Comisionantes_plataformas','Paquetes','Ventas_SSAA','Deacs_SSAA','Actividad','Bases_GCP','Bases_GCE']:
             fileobj = ReadExcelFile(self.parameters)
             
         else:
-            fileobj = ReadXlsxFile(self.parameters)
+            fileobj = ReadXlsxFile(self.parameters) # Carga de hojas historicas
         
         df0 = fileobj.readFile()
 
@@ -258,7 +272,13 @@ class LoadFileProcess(object):
         if self.parser.has_option(section, 'colstochange'):
             newcols = dict(zip(self.parameters['colsconverted'], self.parameters['colstochange']))
             df.rename(columns = newcols, inplace = True)
-
+        
+        # Asegura que los campos fecha sean datetime
+        """
+        if self.parser.has_option(section, 'colsdatetype'):
+            for colname in self.parameters['colsdatetype']:
+                #df[colname] = pd.to_datetime(df[colname],'%Y-%m-%d %H:%M:%S')
+        """        
         df.name = section
         
         paramsfile = {'section' : self.section, 'lenght' : len(df)}
@@ -294,15 +314,16 @@ class LoadFileProcess(object):
         
     def prepareOtherPlainFiles(self, parameters):
         
-        criteria = {'VAS' : {'colgroupby' : ['GERENCIA2' , 'ZONAVENTA', 'DEPARTAMENTO', 'GANADO_POR_VOZ'], 'colsum' : ['GERENCIA2' , 'ZONAVENTA', 'DEPARTAMENTO', 'GANADO_POR_VOZ']},'HC' : {'colfilter' : 'CARGO', 'colfilteritem' : 'CONSULTOR', 'colgroupby' : 'DATOS', 'colsum' : 'VENDEDORES'}}
+        #criteria = {'VAS' : {'colgroupby' : ['GERENCIA2' , 'ZONAVENTA', 'DEPARTAMENTO', 'VENDEDOR_CROSS_SELLING'], 'colsum' : ['GERENCIA2' , 'ZONAVENTA', 'DEPARTAMENTO', 'VENDEDOR_CROSS_SELLING']},'HC' : {'colfilter' : 'CARGO', 'colfilteritem' : 'CONSULTOR', 'colgroupby' : 'DATOS', 'colsum' : 'VENDEDORES'}}
         listofdfs = {}
         
-        periodo = parameters['periodo']
-        params = parameters['frames']
-        #print(params.keys())
-        for section in params.keys():
+        periodo = parameters['periodo']     
+        frames = parameters['frames']
+        criteria = parameters['criteria']
+
+        for section in frames.keys():
             otherobj = dp.OtherPlainDataFrame(criteria[section])  
-            df = otherobj.prepareCols(section, params[section], periodo)
+            df = otherobj.prepareCols(section, frames[section], periodo)
             listofdfs[section] = df
             
         return listofdfs
