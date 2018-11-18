@@ -125,8 +125,8 @@ class ReadXlsxFile(GenericInputFile):
                 #Eliminando Columnas y filas sin data
                 #print(df0.columns) # punto de test
                 
-                df0 = df0.dropna(axis = 1, how = 'all')
-                df0 = df0.dropna(how = 'all')
+                df0 = df0.dropna(axis = 1, how = 'all') #remove the columns (axis=1) which have NA in all of their values.
+                df0 = df0.dropna(how = 'all') #remove the rows (axis=0 default value) which have NA in all of their values.
 
                 if self.parameters['typeofinf'] == 'Historical' :
                     header = self.generateNewHeader(df0.columns.values)
@@ -139,7 +139,7 @@ class ReadXlsxFile(GenericInputFile):
                     df = df.append(df0[self.parameters['cols']], ignore_index = True)
                            
         return df
-       
+
     def generateNewHeader(self, columns):
         #Genera los encabezados segun formato
         #print(columns)
