@@ -8,6 +8,7 @@ Created on Sun Aug 13 16:00:01 2017
 import abc
 import pandas as pd
 import os
+import posixpath
 from pandas import Series, DataFrame
 from configparser import SafeConfigParser
 import codecs
@@ -105,8 +106,8 @@ class ReadXlsxFile(GenericInputFile):
         #df = pd.DataFrame()
         
         for item in filelist:
- 
-            workbook = pd.ExcelFile(item)
+            print('Archivo:',item)
+            workbook = pd.ExcelFile(item,encoding='utf-8')
             
             if self.parameters['presetsheet'] == '':
                 sheets = workbook.sheet_names
@@ -125,8 +126,8 @@ class ReadXlsxFile(GenericInputFile):
                 #Eliminando Columnas y filas sin data
                 #print(df0.columns) # punto de test
                 
-                df0 = df0.dropna(axis = 1, how = 'all') #remove the columns (axis=1) which have NA in all of their values.
-                df0 = df0.dropna(how = 'all') #remove the rows (axis=0 default value) which have NA in all of their values.
+                df0 = df0.dropna(axis = 1, how = 'all')
+                df0 = df0.dropna(how = 'all')
 
                 if self.parameters['typeofinf'] == 'Historical' :
                     header = self.generateNewHeader(df0.columns.values)
@@ -139,7 +140,7 @@ class ReadXlsxFile(GenericInputFile):
                     df = df.append(df0[self.parameters['cols']], ignore_index = True)
                            
         return df
-
+       
     def generateNewHeader(self, columns):
         #Genera los encabezados segun formato
         #print(columns)
@@ -162,19 +163,42 @@ class ReadXlsxFile(GenericInputFile):
         
         
 class ReadIniFile(GenericInputFile):
-    
-    
-    def __init__(self, inifile):
-        
-        self.inifile = inifile
-    
-    def readFile(self):
-        
-        parser = SafeConfigParser()
+    def __init__(self):
+        self.parserini = self.parseIniFile()
+        self.parserdbini = self.parseDBIniFile()
+        self.projectpath = self.parserini['DEFAULT']['datapath']
 
+    def parseIniFile(self):
+        self.inifile = os.path.join(os.path.dirname(__file__),'../Config/myconfig.ini')
+        return self.readFile()
+
+    def parseDBIniFile(self):
+        self.inifile = os.path.join(os.path.dirname(__file__),'../Config/mydbconfig.ini')
+        return self.readFile()
+
+
+    def getIniFileParser(self):
+        return self.parserini
+
+    def getDbIniFileParser(self):
+        dbparser = self.parserdbini
+        dbparser['DEFAULT']['datapath'] = self.projectpath 
+        return dbparser
+
+    def getDefaultPath(self):
+        path = posixpath.join(self.projectpath,'Data Fuente Comisiones/xlsx')
+        print('Setting defaultpath as ' + path)
+        return path
+
+    def getTestPath(self):
+        path = posixpath.join(self.projectpath ,'Data Fuente Comisiones/test')
+        print('Setting testpath as ' + path)
+        return path
+
+    def readFile(self):
+        parser = SafeConfigParser()
         with codecs.open(self.inifile, 'r', encoding='utf-8') as f:
             parser.readfp(f)
-
         return parser
 
 class LoadFileProcess(object):
@@ -193,10 +217,10 @@ class LoadFileProcess(object):
         """ http://stackoverflow.com/questions/335695/lists-in-configparser """
         """ En caso la data sea Historical se agrega el periodo a la lista cols"""
 
-        yeardic = {'201701':'ene-17','201702':'feb-17','201703':'mar-17','201704':'abr-17','201705':'may-17','201706':'jun-17', 
-                   '201707':'jul-17','201708':'ago-17','201709':'sep-17','201710':'oct-17','201711':'nov-17','201712':'dic-17',
-                   '201801':'ene-18','201802':'feb-18','201803':'mar-18','201804':'abr-18','201805':'may-18','201806':'jun-18',
-                   '201807':'jul-18','201808':'ago-18','201809':'sep-18','201810':'oct-18','201811':'nov-18','201812':'dic-18',}    
+        yeardic = {'201801':'ene-18','201802':'feb-18','201803':'mar-18','201804':'abr-18','201805':'may-18','201806':'jun-18',
+                   '201807':'jul-18','201808':'ago-18','201809':'sep-18','201810':'oct-18','201811':'nov-18','201812':'dic-18',
+                   '201901':'ene-19','201902':'feb-19','201903':'mar-19','201904':'abr-19','201905':'may-19','201906':'jun-19',
+                   '201907':'jul-19','201908':'ago-19','201909':'sep-19','201910':'oct-19','201911':'nov-19','201912':'dic-19',}    
 
         if self.month:
             self.periodo = yeardic[self.month]

@@ -6,5 +6,4 @@ Created on Sun Aug 13 16:00:01 2017
 
 """
 
-configini = 'Z:/Developer/Comisiones4/Config/myconfig.ini'
-dbconfigini = 'Z:/Developer/Comisiones4/Config/mydbconfig.ini'
+dbpath='D:/Datos de Usuario/jsaenza/Documents/Comisiones/MercadoEmpresas/Bases/'

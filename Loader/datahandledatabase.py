@@ -9,9 +9,12 @@ import abc
 import sys
 import sqlite3
 import pandas as pd
+import posixpath
 from pandas import Series, DataFrame
 from Loader import datapreparation as dp
 from Loader import datacompute as dc
+
+
 
 class DbGenericOperator(object):
     __metaclass__ = abc.ABCMeta
@@ -42,14 +45,12 @@ class DbGenericOperator(object):
         
 class DbSqLiteOperator(DbGenericOperator):
 
-
     def __init__(self, params):
-
         self.dbpath = params['dbpath']
         self.dbname = params['dbname']
 
     def openDb(self):
-        self.conn = sqlite3.connect(self.dbpath + self.dbname, detect_types = sqlite3.PARSE_DECLTYPES)
+        self.conn = sqlite3.connect(posixpath.join(self.dbpath,self.dbname), detect_types = sqlite3.PARSE_DECLTYPES)
         
     def closeDb(self):
         self.conn.close()
@@ -83,15 +84,14 @@ class DbDataProcess(object):
         self.parser = None
         self.section = None
         self.parameters = None
-        self.dbpath = 'D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Bases/'
+        self.dbpath = None
         self.dbname = 'comisiones3.sqlite'
-        
      
     def display(self, paramstable):
         print('Los registros de la tabla %s es %s registros %s ' % ((paramstable['section'], paramstable['lenght'], paramstable['comment'])))  
         
     def configParameters(self): # incluía parser
-   
+        
         l2 = []
         
         itemlist = ['coldates', 'colstoupdate', 'criterycols', 'dropcols']
@@ -146,8 +146,7 @@ class DbDataProcess(object):
         
         return df
         
-    def dbOperation(self, operation, section, data = None):
-            
+    def dbOperation(self, operation, section, data = None):    
         self.section = section
         self.configParameters()
         self.parameters['dboperation'] = operation       
@@ -284,3 +283,12 @@ class DbDataProcess(object):
     
     def setParser(self, parser):
         self.parser = parser
+        dbpath = posixpath.join(parser['DEFAULT']['datapath'],'Bases')
+        self.setDbPath(dbpath)
+        print('Also setting database path to ' + posixpath.join(self.dbpath,self.dbname))
+
+    def setDbPath(self,dbpath):
+        self.dbpath = dbpath
+
+    def setDbName(self,dbname):
+        self.dbname = dbname

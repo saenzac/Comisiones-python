@@ -102,7 +102,7 @@ class ComputeSumSSAA(ComputeProcess):
         c = [m + str(n) for m,n in zip(b,a)]
         df.columns = c
         df.rename # ver para que sirve
-        #print(df.columns)
+        #print(df.columns) # Test
         df.rename(columns = {'sumACCESS_REAL' : 'ACCESSLICENCIA'}, inplace = True)
         df['ACCESSLICENCIA'] = df['ACCESSLICENCIA'].round(2)
             
@@ -208,9 +208,14 @@ class ComputeReversiones(ComputeProcess):
         #print(cols)
         colscriterios = [x for x in cols if x not in colsfactor]
         colsordered = colsfactor + colscriterios
-        self.rules = self.rules[colsordered]       
-        #df.to_csv('D:/Datos de Usuario/cleon/Documents/Capital Humano/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
-        #self.rules.to_csv('D:/Datos de Usuario/cleon/Documents/Capital Humano/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
+        self.rules = self.rules[colsordered]
+        ### Trabajar este Archivo reversiones brutas. En caso que aparezca FChurn, DEOF, ADDOF o NEWOF netearlo con algun deac de la cuenta o consultor
+        ### Calcular la reversión unitaria en excel tal como se indica en 
+        ### Tener en cuenta la columna penalidad. Si 0, se revierte si tiene 100% de penalidad no le corresponde reversion, Si tiene 25% de penalidad sobre aplicarle
+        ### el 75% de la reversión
+        
+        df.to_csv('D:/Datos de Usuario/jsaenza/Documents/Comisiones/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
+        self.rules.to_csv('D:/Datos de Usuario/jsaenza/Documents/Comisiones/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
         for row in self.rules.itertuples():    
             # Removiendo el indice y las columnas que tienen pesos o factores
             #i = i + 1
@@ -222,7 +227,8 @@ class ComputeReversiones(ComputeProcess):
             criterios = [x for x in match_list if x != '']
             columns = [colscriterios[x] for x in realindex]
             rowstochange = df[df[columns].isin(criterios).all(axis = 1)].index.tolist()
-            #print(rowfactor[2])
+            #print(rowfactor[2]) # Punto de Test
+            #print(i)
             if rowfactor[2] != 'NETEO':
                 df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * factors
                 df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION'
@@ -230,11 +236,12 @@ class ComputeReversiones(ComputeProcess):
                 #print(rowstochange)
                 df.loc[rowstochange, self.params['colchange']] = 0
                 df.loc[rowstochange, 'TIPO_REVERSION'] = 'NETEO'
-                #print(df.loc[rowstochange, 'TIPO_REVERSION'])
+                #print(df.loc[rowstochange, 'TIPO_REVERSION']) # Punto de Control
                 #df.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas' + str(i) + '.csv')
          
          # Ingresando el cálculo de penalidad
             #print(df.columns)
+
          
             rowspenal = df[df['PENALIDAD'] > 0].index.values
             df.loc[rowspenal, self.params['colchange']]= -df.loc[rowspenal,'COMISION_UNITARIA'] * (1-df.loc[rowspenal,'PENALIDAD'])
