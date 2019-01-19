@@ -182,7 +182,8 @@ class ReadIniFile(GenericInputFile):
 
     def getDbIniFileParser(self):
         dbparser = self.parserdbini
-        dbparser['DEFAULT']['datapath'] = self.projectpath 
+        dbparser['DEFAULT']['datapath'] = self.projectpath
+        dbparser['DEFAULT']['databasepath'] = self.parserini['DEFAULT']['databasepath']
         return dbparser
 
     def getDefaultPath(self):

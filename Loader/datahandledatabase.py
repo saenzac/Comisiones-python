@@ -85,7 +85,7 @@ class DbDataProcess(object):
         self.section = None
         self.parameters = None
         self.dbpath = None
-        self.dbname = 'comisiones3.sqlite'
+        self.dbname = 'mercado_empresas_db.sqlite'
      
     def display(self, paramstable):
         print('Los registros de la tabla %s es %s registros %s ' % ((paramstable['section'], paramstable['lenght'], paramstable['comment'])))  
@@ -283,9 +283,10 @@ class DbDataProcess(object):
     
     def setParser(self, parser):
         self.parser = parser
-        dbpath = posixpath.join(parser['DEFAULT']['datapath'],'Bases')
+        dbpath = parser['DEFAULT']['databasepath']
+        #dbpath = posixpath.join(parser['DEFAULT']['databasepath'],'Bases')
         self.setDbPath(dbpath)
-        print('Also setting database path to ' + posixpath.join(self.dbpath,self.dbname))
+        print('Also setting database database path to ' + posixpath.join(self.dbpath,self.dbname))
 
     def setDbPath(self,dbpath):
         self.dbpath = dbpath
