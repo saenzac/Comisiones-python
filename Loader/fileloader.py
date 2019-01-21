@@ -18,7 +18,10 @@ from datetime import datetime
 import logging
 
 logger = logging.getLogger()
+hdlr = logger.handlers[0]
 logger.setLevel(logging.DEBUG)
+fmt = logging.Formatter('%(levelname)s:    %(message)s')
+hdlr.setFormatter(fmt)
 
 class GenericInputFile(object):
     __metaclass__ = abc.ABCMeta
