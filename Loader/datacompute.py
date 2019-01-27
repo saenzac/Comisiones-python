@@ -214,8 +214,8 @@ class ComputeReversiones(ComputeProcess):
         ### Tener en cuenta la columna penalidad. Si 0, se revierte si tiene 100% de penalidad no le corresponde reversion, Si tiene 25% de penalidad sobre aplicarle
         ### el 75% de la reversión
         
-        df.to_csv('D:/Datos de Usuario/jsaenza/Documents/Comisiones/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
-        self.rules.to_csv('D:/Datos de Usuario/jsaenza/Documents/Comisiones/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
+        df.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
+        self.rules.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
         for row in self.rules.itertuples():    
             # Removiendo el indice y las columnas que tienen pesos o factores
             #i = i + 1
