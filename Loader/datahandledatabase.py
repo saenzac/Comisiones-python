@@ -196,7 +196,7 @@ class DbDataProcess(object):
                 
             elif section == 'Unitarios':
                 df = data[data['COMISION_UNITARIA'] != 0]                
-                df = df.drop_duplicates(['CONTRATO'], take_last = True)
+                df = df.drop_duplicates(['CONTRATO'], keep='last')
                 df.reset_index(inplace = True,drop = True)
                 #print(len(df))# control
                 

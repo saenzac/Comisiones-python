@@ -10,18 +10,25 @@ import pandas as pd
 import os
 import posixpath
 from pandas import Series, DataFrame
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 import codecs
 import ast
 from Loader import datapreparation as dp
 from datetime import datetime
 import logging
 
+# Initializing the logger instance
 logger = logging.getLogger()
-hdlr = logger.handlers[0]
 logger.setLevel(logging.DEBUG)
+
+# Adding console handler with custom format to the logger
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
 fmt = logging.Formatter('%(levelname)s:    %(message)s')
-hdlr.setFormatter(fmt)
+ch.setFormatter(fmt)
+logger.addHandler(ch)
+
 
 class GenericInputFile(object):
     __metaclass__ = abc.ABCMeta
@@ -75,8 +82,8 @@ class ReadExcelFile(GenericInputFile):
         
         for item in filelist:
             
-            df0 = pd.read_excel(item, sheetname = self.parameters['presetsheet'], na_values = self.parameters['navalues'], skiprows = self.parameters['skiprows'], converters = converters)                               
-            df = df.append(df0[self.parameters['cols']], ignore_index = True)
+            df0 = pd.read_excel(item, sheet_name=self.parameters['presetsheet'], na_values = self.parameters['navalues'], skiprows = self.parameters['skiprows'], converters = converters)
+            df = df.append(df0[self.parameters['cols']], ignore_index=True)
         
         #Eliminando Columnas y filas sin data
         
@@ -88,7 +95,7 @@ class ReadExcelFile(GenericInputFile):
         #if self.parameters['section'] not in ['Planillas','Comisionantes_voz','Comisionantes_voz','Ingresos','Ceses']:  # self.parameters['section']!='Planillas':
         if self.parameters.get('colsdatetype') != None:
             for datevalue in self.parameters['colsdatetype']:
-                df[datevalue] = pd.to_datetime(df[datevalue],'%Y-%m-%d', dayfirst = True)
+                df[datevalue] = pd.to_datetime(df[datevalue], format='%Y-%m-%d', dayfirst=True)
 
         return df
 
@@ -113,8 +120,8 @@ class ReadXlsxFile(GenericInputFile):
         #df = pd.DataFrame()
         
         for item in filelist:
-            print('Archivo:',item)
-            workbook = pd.ExcelFile(item,encoding='utf-8')
+            print('Archivo:', item)
+            workbook = pd.ExcelFile(item, encoding='utf-8')
             
             if self.parameters['presetsheet'] == '':
                 sheets = workbook.sheet_names
@@ -123,28 +130,28 @@ class ReadXlsxFile(GenericInputFile):
         
             for sheet in sheets:
                 
-                print('Hoja Importada:',sheet)
+                print('Hoja Importada:', sheet)
 
                 if self.parameters['parsecols'] == 'None':
-                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], na_values = self.parameters['navalues'])
+                    df0 = workbook.parse(sheet_name=sheet, skiprows=self.parameters['skiprows'], na_values=self.parameters['navalues'])
                 else:
-                    df0 = workbook.parse(sheetname = sheet, skiprows = self.parameters['skiprows'], na_values = self.parameters['navalues'], parse_cols = self.parameters['parsecols'])
+                    df0 = workbook.parse(sheet_name=sheet, skiprows=self.parameters['skiprows'], na_values=self.parameters['navalues'], usecols=self.parameters['parsecols'])
                 
                 #Eliminando Columnas y filas sin data
                 #print(df0.columns) # punto de test
                 
-                df0 = df0.dropna(axis = 1, how = 'all')
-                df0 = df0.dropna(how = 'all')
+                df0 = df0.dropna(axis=1, how='all')
+                df0 = df0.dropna(how='all')
 
-                if self.parameters['typeofinf'] == 'Historical' :
+                if self.parameters['typeofinf'] == 'Historical':
                     header = self.generateNewHeader(df0.columns.values)
                     df0.columns = header
                 
                 if self.parameters['section'] == 'Tracking':
-                    df = df.merge(df0, on = 'Datos', how = 'right')                    
+                    df = df.merge(df0, on='Datos', how='right')
 
                 else:
-                    df = df.append(df0[self.parameters['cols']], ignore_index = True)
+                    df = df.append(df0[self.parameters['cols']], ignore_index=True)
                            
         return df
        
@@ -212,9 +219,9 @@ class ReadIniFile(GenericInputFile):
         return path
 
     def readFile(self, inifile):
-        parser = SafeConfigParser()
+        parser = ConfigParser()
         with codecs.open(inifile, 'r', encoding='utf-8') as f:
-            parser.readfp(f)
+            parser.read_file(f)
         return parser
 
 class LoadFileProcess(object):

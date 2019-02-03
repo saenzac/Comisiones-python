@@ -336,7 +336,7 @@ class PlainDataFrame(DataFramePreparation):
         df[keyperiod] = df[self.params['colref']].map(lambda x: 100 * x.year + x.month)
         
         if self.params['section'] in ['tblVentas', 'tblDeacs']:
-            df['FEC_DESACTIVA'] = pd.to_datetime(df['FEC_DESACTIVA'], dayfirst = True, coerce = True)
+            df['FEC_DESACTIVA'] = pd.to_datetime(df['FEC_DESACTIVA'], dayfirst=True, errors='coerce')
             if self.params['section'] == 'tblVentas':
                 df['GROSSCOMISION'] = df['GROSSCOMERCIAL']
                 df['CEDENTE']=df['CEDENTE'].fillna('No Determinado')

@@ -18,6 +18,7 @@ class ValidateDataFrame(object):
     def exportValidation(self, exportparams):
         writer = ExcelWriter(exportparams['xlsxfile'])
         exportparams['dataframe'].to_excel(writer, index = False, sheet_name = 'validaciones')
+        writer.save()
         self.display(exportparams)
         
     def display(self, exportparams):

@@ -8,6 +8,20 @@ import abc
 import pandas as pd
 import numpy as np
 
+import logging
+
+# Initializing the logger instance
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+# Adding console handler with custom format to the logger
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+fmt = logging.Formatter('%(levelname)s:    %(message)s')
+ch.setFormatter(fmt)
+logger.addHandler(ch)
+
 class ComputeProcess(object):
     
     __metaclass__ = abc.ABCMeta
@@ -31,7 +45,7 @@ class ComputeProcess(object):
             df[colsum] = df['ESTADO'].apply(lambda x : 1 if (x == grosslist[0] or x == grosslist[1] or x == grosslist[2] or x == grosslist[3]) else -1)
            
         # Ordenando la información
-        df = df.sort(params['sortlist'], ascending = params['booleanlist'])
+        df = df.sort_values(by = params['sortlist'], ascending = params['booleanlist'])
               
         # Agregar columnas adicionales : codigo_padre, neteo_telefono, neteo_codigo_padre, neteo_vendedor
         df['CODIGO_PADRE'] = df['CODIGO'].apply(lambda x: x[:len(x)-13] if x[0]!='1' else x)
@@ -49,7 +63,7 @@ class ComputeProcess(object):
         df = df[df[prefix + col] > 0]
         
         # Ordenando nuevamente la información y agregando correlativo
-        df = df.sort(params['sortlist'], ascending = params['booleanlist'])
+        df = df.sort_values(by=params['sortlist'], ascending = params['booleanlist'])
         df.reset_index(inplace = True)
         df['CORRELATIVO'] = df.index.values
 
@@ -71,7 +85,7 @@ class ComputeBolsas(ComputeProcess):
         
         df = data.copy()
                
-        df.drop_duplicates(['CONTRATO'], take_last=True, inplace=True)
+        df.drop_duplicates(['CONTRATO'], keep='last', inplace=True)
         df['CANT_MIN_ANTER'].fillna(0, inplace=True)
 
         cantpercount = df.groupby('CUENTA')['CONTRATO'].count().reset_index()
@@ -183,12 +197,12 @@ class ComputeReversiones(ComputeProcess):
         df = df[df['POSICION_EMPL'].notnull()] # logins en base de datos de lo contario se eliminan puestos
 
         
-        positions = self.rules.drop_duplicates(['POSICION_EMPL'], take_last=True)['POSICION_EMPL']
+        positions = self.rules.drop_duplicates(['POSICION_EMPL'], keep='last')['POSICION_EMPL']
         df = df[df['POSICION_EMPL'].isin(positions)]  
               
         df['ACCESS_TOTAL'] = df['ACCESS'] + df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']  
-        df['FECHA_PROCESO'] = pd.to_datetime(df['FECHA_PROCESO'], dayfirst = True, coerce = True)
-        df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, coerce = True)     
+        df['FECHA_PROCESO'] = pd.to_datetime(df['FECHA_PROCESO'], dayfirst = True, errors='coerce')
+        df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, errors='coerce')
         df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario     
         df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x : 'Entre 0 y 90 dias' 
                                                                       if x < 91 else ('Entre 91 y 180 dias' 
@@ -214,8 +228,9 @@ class ComputeReversiones(ComputeProcess):
         ### Tener en cuenta la columna penalidad. Si 0, se revierte si tiene 100% de penalidad no le corresponde reversion, Si tiene 25% de penalidad sobre aplicarle
         ### el 75% de la reversión
         
-        df.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
-        self.rules.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
+        #df.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
+        #self.rules.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
+        logging.debug("Aca escribia los archivos de reversiones brutas y reversiones rules")
         for row in self.rules.itertuples():    
             # Removiendo el indice y las columnas que tienen pesos o factores
             #i = i + 1
