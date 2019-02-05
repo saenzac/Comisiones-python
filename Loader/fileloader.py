@@ -313,7 +313,7 @@ class LoadFileProcess(object):
     if self.section == 'Inar_bruto':
       fileobj = ReadTxtFile(self.parameters)
 
-    elif self.section in ['Ingresos','Ceses','Inar','Paquetes','Planillas','Comisionantes_voz','Comisionantes_plataformas','Comisionantes_plataformas_rproductividad','Paquetes','Ventas_SSAA','Deacs_SSAA','Actividad','Bases_GCP','Bases_GCE']:
+    elif self.section in ['Ingresos','Ceses','Inar','Paquetes','Planillas','Comisionantes_voz','Comisionantes_plataformas','Pesos_plataformas','Comisionantes_plataformas_rproductividad','Paquetes','Ventas_SSAA','Deacs_SSAA','Actividad','Bases_GCP','Bases_GCE']:
       fileobj = ReadExcelFile(self.parameters)
 
     else:
