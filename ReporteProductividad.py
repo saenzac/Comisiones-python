@@ -9,7 +9,7 @@ from datetime import datetime
 import time
 import posixpath
 
-month = '201807'
+month = '201707'
 
 inifile = fl.ReadIniFile()
 defaultpath = inifile.getDefaultPath()
@@ -41,13 +41,13 @@ comis_sheet.range((1,ponderado_cindex)).options(transpose=True).value = comis_sh
 
 ### Actualizando Pesos
 pesos_df = pesospltfrs
-pesos_df = pesos_df[pesos_df['ITEM'] != 'ITEM']
+pesos_df = pesos_df[pesos_df['ITEM'] != 'item']
 pesos_df = pesos_df[~pesos_df['ITEM'].isnull()]
 pesos_df = pesos_df[pesos_df['ITEM'] < 3000]
 pesos_df = pesos_df[pesos_df['ITEM'] > 2000]
 
 
-captura_df=pesos_df.filter(regex=("CAPTURA.*"))
+captura_df=pesos_df.filter(regex=("VENTA.*"))
 headers = captura_df.columns.values
 captura_df=captura_df.fillna(0) #fill empty spaces read as nan to zeros
 captura_mat=captura_df.as_matrix() #mxn
@@ -84,9 +84,9 @@ df_conv = pd.concat([captura_df_conv,gestion_df_conv,desarrollo_df_conv],axis=1)
 
 
 #Buscar columna CAPTURA 1
-col_pesos = pesospltfrs.columns.get_loc("CAPTURA_1") + 1
+col_pesos = pesospltfrs.columns.get_loc("VENTA_1") + 1
 #Buscar fila primera ocurrencia de ITEM
-row_pesos = min(pesospltfrs.index[pesospltfrs['ITEM'] == 'ITEM'].tolist()) + 4
+row_pesos = min(pesospltfrs.index[pesospltfrs['ITEM'] == 'item'].tolist()) + 4
 
 wb.sheets.add('backup_pesos')
 backup_pesos_sheet = wb.sheets('backup_pesos')
