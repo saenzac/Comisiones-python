@@ -243,7 +243,7 @@ class LoadFileProcess(object):
     """ En caso la data sea Historical se agrega el periodo a la lista cols"""
 
     yeardic = {'201701':'ene-17','201702':'feb-17','201703':'mar-17','201704':'abr-17','201705':'may-17','201706':'jun-17',
-               '201707': 'jul-17', '201708': 'ago-17', '201709': 'sep-17', '201710': 'oct-17', '201711': 'nov-17','201712': 'dic-17',
+               '201707':'jul-17','201708': 'ago-17', '201709': 'sep-17', '201710': 'oct-17', '201711': 'nov-17','201712': 'dic-17',
                '201801':'ene-18','201802':'feb-18','201803':'mar-18','201804':'abr-18','201805':'may-18','201806':'jun-18',
                '201807':'jul-18','201808':'ago-18','201809':'sep-18','201810':'oct-18','201811':'nov-18','201812':'dic-18',
                '201901':'ene-19','201902':'feb-19','201903':'mar-19','201904':'abr-19','201905':'may-19','201906':'jun-19',
@@ -256,7 +256,7 @@ class LoadFileProcess(object):
     l2 = []
 
     for item in self.parser.options(self.section): #
-      if item == 'skiprows' or item=='allcols' or item=='nodropna':
+      if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine':
         l2.append(self.parser.getint(self.section,item)) # si la opcion es un entero
 
       elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols', 'colsdatetype']: # si en myconfig.ini la opcion es una lista
@@ -287,10 +287,12 @@ class LoadFileProcess(object):
     if 'nodropna' not in self.parameters:
       self.parameters['nodropna'] = 0
 
+    if 'read_engine' not in self.parameters:
+      self.parameters['read_engine'] = 0
+
   def adjustDataframe(self, data):
 
     # Limpiando información
-
     df = data.copy()
 
     #df.columns = df.columns.str.lower() # Convierte los encabezados en minisculas
@@ -302,7 +304,6 @@ class LoadFileProcess(object):
 
     return df
 
-
   def loadFile(self, section):
 
     self.section = section
@@ -312,17 +313,14 @@ class LoadFileProcess(object):
     self.parameters['filelist'] = filelist
     self.parameters['section'] = section
 
-    if self.section == 'Inar_bruto':
+    if self.parameters['read_engine'] == 1:
       fileobj = ReadTxtFile(self.parameters)
-
-    elif self.section in ['Ingresos','Ceses','Inar','Paquetes','Planillas','Comisionantes_voz','Comisionantes_plataformas','Pesos_plataformas','Comisionantes_plataformas_rproductividad','Paquetes','Ventas_SSAA','Deacs_SSAA','Actividad','Bases_GCP','Bases_GCE']:
+    elif self.parameters['read_engine'] == 2:
       fileobj = ReadExcelFile(self.parameters)
-
     else:
       fileobj = ReadXlsxFile(self.parameters) # Carga de hojas historicas
 
     df0 = fileobj.readFile()
-
     df = self.adjustDataframe(df0)
 
     # cambio de nombres de columna
@@ -404,6 +402,7 @@ class LoadFileProcess(object):
         if any(s in name for s in keyfile) and (not '~$' in name):
           file = os.path.join(directorio, name)
           filelist.append(file)
+    assert(filelist != []), "variable filelist can't be empty, check datadir contents."
     return filelist
 
   def getParameters(self):

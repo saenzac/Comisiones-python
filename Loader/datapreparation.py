@@ -18,7 +18,6 @@ class DataframeCleaner(object):
         self.tipo = tipo
         self.periodo = periodo
 
-       
     def fillRows(self, subset, panel, keycol, col):
         """ 
         Permite detectar elementos de subset en panel y autollena. col es la columna adicional que se crea con el autollenado. 
@@ -34,7 +33,7 @@ class DataframeCleaner(object):
         df[col] = df[col].ffill()
         
         return df
-    
+
     def rowsChange(self, logins, panel, loginscol, panelcol):      
         """ Busca el login equivalente en caso de logins no encontrados """
         
@@ -51,8 +50,7 @@ class DataframeCleaner(object):
             df.loc[df[panelcol] == r1, panelcol] = r2
 
         return df
-        
-        
+
     def kpiCleaner(self, kpis):
 
         # Asegúrate que item este codificado. 1XXX para Kpis, 2XXX para pesos, 3XXX para Limitantes Mínimos y 4XXX para limitantes Máximos
@@ -358,7 +356,7 @@ class OtherPlainDataFrame(DataFramePreparation):
         def prepareCols(self, section, data, periodo):
             
             df = pd.DataFrame()
-            
+
             if section == 'HC':
                 df = data[data[self.params['colfilter']] == self.params['colfilteritem']]
                 df = pd.DataFrame(df.groupby(self.params['colgroupby'])[self.params['colsum']].count()).reset_index()
@@ -381,3 +379,4 @@ class OtherPlainDataFrame(DataFramePreparation):
             df.rename(columns = {self.params['colsum']:periodo}, inplace = True)
             
             return df
+

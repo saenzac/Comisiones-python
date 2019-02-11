@@ -1,13 +1,8 @@
 from Loader import fileloader as fl
-from Loader import datahandledatabase as dhdb
-from Loader import datacompute as dc
-from Loader import datapreparation as dp
+from Loader import dfutils
 import xlwings as xw
 import pandas as pd
 import numpy as np
-from datetime import datetime
-import time
-import posixpath
 
 month = '201707'
 
@@ -20,11 +15,13 @@ loader = fl.LoadFileProcess(month)
 loader.setParser(parser)
 loader.setDefaultPath(defaultpath)
 
-pesospltfrs = loader.loadFile('Pesos_plataformas')
-comisionantespltfrs = loader.loadFile('Comisionantes_plataformas_rproductividad')
+pesospltfrs = loader.loadFile('Pesos_Productividad_Plataformas_Comerciales')
+comisionantespltfrs = loader.loadFile('Comisionantes_Productividad_Plataformas_Comerciales')
 
-#Abriendo archivo y haciendo hoja 'comisionantes' activa
+#Obteniendo ruta del archivo de comisiones para ser accedida por XlWings
 file = loader.getFileList()[0]
+
+#Abriendo archivo de Excel y haciendo hoja 'comisionantes' activa
 wb = xw.Book(file)
 comis_sheet = wb.sheets('Comisionantes')
 leyenda_sheet = wb.sheets('Leyenda')
@@ -32,9 +29,10 @@ leyenda_sheet = wb.sheets('Leyenda')
 
 ### Inmovilizando valores de porcentajes ponderados
 #Obteniendo indice de la columna de porcentaje ponderado
-ponderado_cindex = comisionantespltfrs.columns.get_loc("PORCENTAJE_TOTAL_PONDERADO") + 1
-# Inmovilizando columna ponderados
+ponderado_cindex = dfutils.getExcelColIndexFromDF(comisionantespltfrs, "PORCENTAJE_TOTAL_PONDERADO")
+#Hallando ultima fila de la columna
 lastrow = comis_sheet.api.Cells(65536,ponderado_cindex).End(xw.constants.Direction.xlUp).Row
+#Copiando como valores las contenidos de la columna
 comis_sheet.range((1,ponderado_cindex)).options(transpose=True).value = comis_sheet.range((1,ponderado_cindex),(lastrow,ponderado_cindex)).value
 
 
