@@ -25,8 +25,9 @@ ceses_df = loader.loadFile('Ceses')
 ceses_df_short = ceses_df[[ columns_resultant[0], columns_resultant[4] ]]
 
 # Iteration over the comisiones Excel workbooks
-inis = ['Comisionantes_Plataformas_All' , 'Comisionantes_CAL_All', 'Comisionantes_Fidelizacion_Telemarketing_All', 'Comisionantes_Soporte_Empresas_All',
-     'Comisionantes_GrandesCuentas_All', 'Comisionantes_SolucionesNegocio_All','Comisionantes_Pymes_All']
+#inis = ['Comisionantes_Plataformas_All' , 'Comisionantes_CAL_All', 'Comisionantes_Fidelizacion_Telemarketing_All', 'Comisionantes_Soporte_Empresas_All',
+#     'Comisionantes_GrandesCuentas_All', 'Comisionantes_SolucionesNegocio_All','Comisionantes_Pymes_All']
+inis = [ 'Comisionantes_SolucionesNegocio_All','Comisionantes_Pymes_All' ]
 
 for i in range(len(inis)):
   # Generating the dataframes.

@@ -99,7 +99,7 @@ class ReadExcelFile(GenericInputFile):
         for datevalue in self.parameters['colsdatetype']:
           df[datevalue] = pd.to_datetime(df[datevalue], format='%Y-%m-%d', dayfirst=True)
 
-      return df
+    return df
 
 
 class ReadXlsxFile(GenericInputFile):
