@@ -13,8 +13,9 @@ import posixpath
 from pandas import Series, DataFrame
 from Loader import datapreparation as dp
 from Loader import datacompute as dc
+import logging
 
-
+logger = logging.getLogger("")
 
 class DbGenericOperator(object):
     __metaclass__ = abc.ABCMeta
@@ -32,7 +33,7 @@ class DbGenericOperator(object):
         raise NotImplementedError
     
     @abc.abstractmethod
-    def writeTbl(self,query):
+    def writeTbl(self, query):
         raise NotImplementedError      
 
     @abc.abstractmethod    
@@ -79,21 +80,28 @@ class DbSqLiteOperator(DbGenericOperator):
          
 class DbDataProcess(object):
     
-    def __init__(self, month):
+    def __init__(self, month, mercado):
         self.month = month
         self.parser = None
         self.section = None
         self.parameters = None
         self.dbpath = None
-        self.dbname = 'mercado_empresas_db.sqlite'
-     
+        if mercado == "empresas":
+            self.dbname = 'mercado_empresas_db.sqlite'
+        elif mercado == "personas":
+            self.dbname = 'mercado_personas_db.sqlite'
+        else:
+            logger.error("Bad argument selection")
+            raise Exception("Neither mercado 'empresas' or 'personas' selected")
+            sys.exit(1)
+
     def display(self, paramstable):
         print('Los registros de la tabla %s es %s registros %s ' % ((paramstable['section'], paramstable['lenght'], paramstable['comment'])))  
-        
+
     def configParameters(self): # incluía parser
         
         l2 = []
-        
+
         itemlist = ['coldates', 'colstoupdate', 'criterycols', 'dropcols']
     
         for item in self.parser.options(self.section): # 
@@ -150,7 +158,7 @@ class DbDataProcess(object):
         self.section = section
         self.configParameters()
         self.parameters['dboperation'] = operation       
-        
+
         if operation == 'insert':
             dataprepare = dp.PlainDataFrame(self.parameters)      
             keyperiod, df = dataprepare.prepareCols(data)
@@ -221,7 +229,7 @@ class DbDataProcess(object):
             
         elif operation == 'update':
             comment = 'actualizados'
-            df[self.parameters['cols']].to_sql(self.parameters['tblname'] + '_temp', dbobj.conn, if_exists = 'replace', index = False)
+            df[self.parameters['cols']].to_sql(self.parameters['tblname'] + '_temp', dbobj.conn, if_exists='replace', index=False)
             dbobj.updateTbl(querys['sql'])
             
         dbobj.closeDb()       
@@ -253,13 +261,13 @@ class DbDataProcess(object):
         """
         tblname = parameters['tblname']
         sqldel = ''
-        
+
         if parameters['dboperation'] == 'insert':
             sql = 'INSERT INTO ' + tblname + ' (' + ', '.join(col for col in parameters['cols']) + ')' + \
             ' VALUES ' + '(' + ', '.join('?' for col in parameters['cols']) +')'
-            
+
             sqldel = 'DELETE FROM ' + tblname + ' WHERE ' + tblname + '.' + self.parameters['keyperiod'] + ' = ' + self.month
-            
+
         elif parameters['dboperation'] == 'update':       
             sql = 'UPDATE ' + tblname + ' SET ' + \
             ', '.join(col + ' = ' + '(SELECT ' + col + ' FROM ' + tblname + '_temp' +' WHERE ' + 
@@ -267,26 +275,26 @@ class DbDataProcess(object):
                                   in parameters['criterycols']) + ')' for col in parameters['cols']) + \
             ' WHERE ' + 'AND '.join(col2 + ' IN(SELECT ' + col2 + ' FROM ' + tblname + '_temp' + ')' for col2 in
                                     parameters['criterycols'])
-                                                                        
+
         elif parameters['dboperation'] == 'read':
             sql = 'SELECT * FROM ' + tblname
-            
+
         elif parameters['dboperation'] == 'read_complex':
             sql = 'SELECT * FROM ' + parameters['view'] + ' WHERE ' + parameters['keyperiod'] + ' = ' + self.month
-            
+
         elif parameters['dboperation'] == 'read_more_periods':
             sql = 'SELECT * FROM ' + parameters['view'] + ' WHERE ' + parameters['keyperiod'] + ' >= ' + self.month
-        
+
         querys = {'sql': sql, 'sqldel' : sqldel}
-        
+
         return querys    
-    
+
     def setParser(self, parser):
         self.parser = parser
         dbpath = parser['DEFAULT']['databasepath']
         #dbpath = posixpath.join(parser['DEFAULT']['databasepath'],'Bases')
         self.setDbPath(dbpath)
-        print('Also setting database database path to ' + posixpath.join(self.dbpath,self.dbname))
+        logger.info('Setting database path to ' + posixpath.join(self.dbpath, self.dbname))
 
     def setDbPath(self,dbpath):
         self.dbpath = dbpath

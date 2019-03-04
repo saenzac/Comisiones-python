@@ -17,17 +17,7 @@ from Loader import datapreparation as dp
 from datetime import datetime
 import logging
 
-# Initializing the logger instance
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-# Adding console handler with custom format to the logger
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-fmt = logging.Formatter('%(levelname)s:    %(message)s')
-ch.setFormatter(fmt)
-logger.addHandler(ch)
+logger = logging.getLogger("")
 
 
 class GenericInputFile(object):
@@ -183,10 +173,21 @@ class ReadIniFile(GenericInputFile):
     self.parserini = self.parseIniFile()
     self.parserdbini = self.parseDBIniFile()
     self.parserglobalsini = self.parseGlobalsIniFile()
-    self.projectpath = self.parserglobalsini['DEFAULT']['datapath']
-    logging.debug("Values loaded from globals.ini:")
-    for  (each_key, each_val) in self.parserglobalsini.items("DEFAULT"):
-      logging.debug(" * " + each_key + " " + each_val)
+    logger.info("Values loaded from globals.ini:")
+    for (each_key, each_val) in self.parserglobalsini.items("DEFAULT"):
+      logger.info(" * " + each_key + " " + each_val)
+
+    self.parserini['DEFAULT']['mainpath'] = self.parserglobalsini['DEFAULT']['mainpath']
+    self.parserini['DEFAULT']['scriptspath'] = self.parserglobalsini['DEFAULT']['scriptspath']
+
+    self.parserdbini['DEFAULT']['mainpath'] = self.parserglobalsini['DEFAULT']['mainpath']
+    self.parserdbini['DEFAULT']['databasepath'] = self.parserglobalsini['DEFAULT']['databasepath']
+
+    self.mainpath = self.parserglobalsini['DEFAULT']['mainpath']
+    self.datapath = posixpath.join(self.mainpath,'Data Fuente Comisiones/xlsx')
+    logger.info('datapath value is ' + self.datapath)
+    self.testpath = posixpath.join(self.mainpath ,'Data Fuente Comisiones/test')
+    logger.info('testpath value is ' + self.testpath)
 
   def parseIniFile(self):
     inifile = os.path.join(os.path.dirname(__file__),'../Config/myconfig.ini')
@@ -201,24 +202,16 @@ class ReadIniFile(GenericInputFile):
     return self.readFile(inifile)
 
   def getIniFileParser(self):
-    self.parserini['DEFAULT']['datapath'] = self.parserglobalsini['DEFAULT']['datapath']
-    self.parserini['DEFAULT']['scriptspath'] = self.parserglobalsini['DEFAULT']['scriptspath']
     return self.parserini
 
   def getDbIniFileParser(self):
-    self.parserdbini['DEFAULT']['datapath'] = self.parserglobalsini['DEFAULT']['datapath']
-    self.parserdbini['DEFAULT']['databasepath'] = self.parserglobalsini['DEFAULT']['databasepath']
     return self.parserdbini
 
-  def getDefaultPath(self):
-    path = posixpath.join(self.projectpath,'Data Fuente Comisiones/xlsx')
-    logging.debug('defaultpath value is ' + path)
-    return path
+  def getDataPath(self):
+    return self.datapath
 
   def getTestPath(self):
-    path = posixpath.join(self.projectpath ,'Data Fuente Comisiones/test')
-    logging.debug('testpath value is ' + path)
-    return path
+    return self.testpath
 
   def readFile(self, inifile):
     parser = ConfigParser()
