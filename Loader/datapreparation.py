@@ -324,7 +324,7 @@ class PlainDataFrame(DataFramePreparation):
         """ Convierte datetimes to string dates si usas sqlite """
         
         DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-        ending = ['ACTIVACION' if self.params['section'] in ['tblEmpleados', 'tblVentaSSAA', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia'] else 'DESACTIVACION' if self.params['section'] in ['tblDeacs', 'tblDeacSSAA'] else 'migracion']
+        ending = ['ACTIVACION' if self.params['section'] in ['tblEmpleados', 'tblVentaSSAA', 'tblVentaSSAANew', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia'] else 'DESACTIVACION' if self.params['section'] in ['tblDeacs', 'tblDeacSSAA'] else 'migracion']
         keyperiod = 'PERIODO_' + ending[0]
         
         df = data.copy()
