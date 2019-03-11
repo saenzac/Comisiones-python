@@ -3,19 +3,19 @@ from Loader import dfutils
 import xlwings as xw
 import pandas as pd
 
-month = '201901'
+month = '201902'
 
-inifile = fl.ReadIniFile()
-defaultpath = inifile.getDefaultPath()
+inifile = fl.ReadIniFile(mercado="empresas")
+datapath = inifile.getDataPath()
 testpath = inifile.getTestPath()
 parser = inifile.getIniFileParser()
 
 loader = fl.LoadFileProcess(month)
 loader.setParser(parser)
-loader.setDefaultPath(defaultpath)
+loader.setDefaultPath(datapath)
 
 #The final order the columns written in the excel file will have
-columns_resultant = ['DNI','PADRON_FECHA_DE_INGRESO', 'FECHA_DE_INICIO_EN_EL_PUESTO','NOMBRE_DEL_PUESTO','FECHA_CESE']
+columns_resultant = ['DNI', 'PADRON_FECHA_DE_INGRESO', 'FECHA_DE_INICIO_EN_EL_PUESTO', 'NOMBRE_DEL_PUESTO', 'FECHA_CESE']
 
 # Generating padron empleados and ceses Dataframes
 padron_df = loader.loadFile('Padron_Empleados')
@@ -25,9 +25,8 @@ ceses_df = loader.loadFile('Ceses')
 ceses_df_short = ceses_df[[ columns_resultant[0], columns_resultant[4] ]]
 
 # Iteration over the comisiones Excel workbooks
-#inis = ['Comisionantes_Plataformas_All' , 'Comisionantes_CAL_All', 'Comisionantes_Fidelizacion_Telemarketing_All', 'Comisionantes_Soporte_Empresas_All',
-#     'Comisionantes_GrandesCuentas_All', 'Comisionantes_SolucionesNegocio_All','Comisionantes_Pymes_All']
-inis = [ 'Comisionantes_SolucionesNegocio_All','Comisionantes_Pymes_All' ]
+inis = ['Comisionantes_Plataformas_All', 'Comisionantes_CAL_All', 'Comisionantes_Fidelizacion_Telemarketing_All', 'Comisionantes_Soporte_Empresas_All', 'Comisionantes_GrandesCuentas_All', 'Comisionantes_SolucionesNegocio_All', 'Comisionantes_Pymes_All']
+#inis = [ 'Comisionantes_SolucionesNegocio_All','Comisionantes_Pymes_All' ]
 
 for i in range(len(inis)):
   # Generating the dataframes.

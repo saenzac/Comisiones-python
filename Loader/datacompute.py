@@ -46,7 +46,7 @@ class ComputeProcess(object):
            
         # Ordenando la información
         df = df.sort_values(by = params['sortlist'], ascending = params['booleanlist'])
-              
+
         # Agregar columnas adicionales : codigo_padre, neteo_telefono, neteo_codigo_padre, neteo_vendedor
         df['CODIGO_PADRE'] = df['CODIGO'].apply(lambda x: x[:len(x)-13] if x[0]!='1' else x)
         prefix = 'NETEO_'

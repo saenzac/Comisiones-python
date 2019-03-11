@@ -169,7 +169,8 @@ class ReadXlsxFile(GenericInputFile):
 
 
 class ReadIniFile(GenericInputFile):
-  def __init__(self):
+  def __init__(self, mercado):
+    self.mercado = mercado
     self.parserini = self.parseIniFile()
     self.parserdbini = self.parseDBIniFile()
     self.parserglobalsini = self.parseGlobalsIniFile()
@@ -184,21 +185,31 @@ class ReadIniFile(GenericInputFile):
     self.parserdbini['DEFAULT']['databasepath'] = self.parserglobalsini['DEFAULT']['databasepath']
 
     self.mainpath = self.parserglobalsini['DEFAULT']['mainpath']
-    self.datapath = posixpath.join(self.mainpath,'Data Fuente Comisiones/xlsx')
+
+    if self.mercado == "empresas":
+      self.parserini['DEFAULT']['mercado'] = "empresas"
+      self.parserdbini['DEFAULT']['mercado'] = "empresas"
+      self.datapath = posixpath.join(self.mainpath, 'MercadoEmpresas/Data Fuente Comisiones/xlsx')
+      self.testpath = posixpath.join(self.mainpath, 'MercadoEmpresas/Data Fuente Comisiones/test')
+    elif self.mercado == "personas":
+      self.parserini['DEFAULT']['mercado'] = "personas"
+      self.parserdbini['DEFAULT']['mercado'] = "personas"
+      self.datapath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/xlsx')
+      self.testpath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/test')
+
     logger.info('datapath value is ' + self.datapath)
-    self.testpath = posixpath.join(self.mainpath ,'Data Fuente Comisiones/test')
     logger.info('testpath value is ' + self.testpath)
 
   def parseIniFile(self):
-    inifile = os.path.join(os.path.dirname(__file__),'../Config/myconfig.ini')
+    inifile = os.path.join(os.path.dirname(__file__), '../Config/myconfig.ini')
     return self.readFile(inifile)
 
   def parseDBIniFile(self):
-    inifile = os.path.join(os.path.dirname(__file__),'../Config/mydbconfig.ini')
+    inifile = os.path.join(os.path.dirname(__file__), '../Config/mydbconfig.ini')
     return self.readFile(inifile)
 
   def parseGlobalsIniFile(self):
-    inifile = os.path.join(os.path.dirname(__file__),'../Config/globals.ini')
+    inifile = os.path.join(os.path.dirname(__file__), '../Config/globals.ini')
     return self.readFile(inifile)
 
   def getIniFileParser(self):

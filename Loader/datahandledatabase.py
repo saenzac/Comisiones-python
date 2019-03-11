@@ -80,20 +80,12 @@ class DbSqLiteOperator(DbGenericOperator):
          
 class DbDataProcess(object):
     
-    def __init__(self, month, mercado):
+    def __init__(self, month):
         self.month = month
         self.parser = None
         self.section = None
         self.parameters = None
         self.dbpath = None
-        if mercado == "empresas":
-            self.dbname = 'mercado_empresas_db.sqlite'
-        elif mercado == "personas":
-            self.dbname = 'mercado_personas_db.sqlite'
-        else:
-            logger.error("Bad argument selection")
-            raise Exception("Neither mercado 'empresas' or 'personas' selected")
-            sys.exit(1)
 
     def display(self, paramstable):
         print('Los registros de la tabla %s es %s registros %s ' % ((paramstable['section'], paramstable['lenght'], paramstable['comment'])))  
@@ -292,6 +284,15 @@ class DbDataProcess(object):
     def setParser(self, parser):
         self.parser = parser
         dbpath = parser['DEFAULT']['databasepath']
+        if self.parser['DEFAULT']['mercado'] == "empresas":
+            self.dbname = 'mercado_empresas_db.sqlite'
+        elif self.parser['DEFAULT']['mercado'] == "personas":
+            self.dbname = 'mercado_personas_db.sqlite'
+        else:
+            logger.error("Bad argument selection")
+            raise Exception("Neither mercado 'empresas' or 'personas' selected")
+            sys.exit(1)
+
         #dbpath = posixpath.join(parser['DEFAULT']['databasepath'],'Bases')
         self.setDbPath(dbpath)
         logger.info('Setting database path to ' + posixpath.join(self.dbpath, self.dbname))
