@@ -108,7 +108,7 @@ class ComputeSumSSAA(ComputeProcess):
         
         df = data.copy()
                
-        df = df[['ACCESS_REAL', 'CONTRATO', 'ACTION_DATE']].groupby(['CONTRATO']).agg(['sum']).reset_index()
+        df = df[['ACCESSREAL', 'CONTRATO', 'ACTION_DATE']].groupby(['CONTRATO']).agg(['sum']).reset_index()
 
         # Aplanando las columnas
         a = df.columns.get_level_values(0)
@@ -117,24 +117,24 @@ class ComputeSumSSAA(ComputeProcess):
         df.columns = c
         df.rename # ver para que sirve
         #print(df.columns) # Test
-        df.rename(columns = {'sumACCESS_REAL' : 'ACCESSLICENCIA'}, inplace = True)
+        df.rename(columns = {'sumACCESSREAL' : 'ACCESSLICENCIA'}, inplace = True)
         df['ACCESSLICENCIA'] = df['ACCESSLICENCIA'].round(2)
             
         return df
 
 class ComputePaquetes(ComputeProcess):
-    
+
     def prepareDf(self, data):
-        
+
         params = {'colsum' : '', 'colsecuence' : ['SERVICE', 'PHONENUMBER', 'CODIGO_PADRE', 'GANADOPORVOZ'], 
                   'colfilter' : 'GANADOPORVOZ', 'sortlist' : ['GANADOPORVOZ', 'GROSS', 'PHONENUMBER'], 
                   'booleanlist' : [True, False, True]}
-        
+
         df = data.copy() # sólo para tener una copia de data antes del neteo
         
         # haciendo que ganadoporvoz y vendedor sea una sola columna
-        nullganadoporvoz = df[df['GANADOPORVOZ'].isnull()].index
-        df.loc[nullganadoporvoz, 'GANADOPORVOZ'] = df.loc[nullganadoporvoz,'VENDEDOR']
+        ## nullganadoporvoz = df[df['GANADOPORVOZ'].isnull()].index
+        ##df.loc[nullganadoporvoz, 'GANADOPORVOZ'] = df.loc[nullganadoporvoz,'VENDEDOR']
         
         # Aplicando Neteos y Filtrando sólo contratos que son gross. 
         df = self.neteomanager(params, df)
