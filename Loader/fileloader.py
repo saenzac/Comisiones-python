@@ -313,6 +313,7 @@ class LoadFileProcess(object):
     self.section = section
     self.configParameters()
     #print(self.parameters) # Punto de Control
+    logger.info("Values loaded from globals.ini:")
     filelist = self.generateInputs()
     self.parameters['filelist'] = filelist
     self.parameters['section'] = section
