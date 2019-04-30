@@ -136,7 +136,11 @@ class ReadXlsxFile(GenericInputFile):
         df0 = df0.dropna(how='all')
 
         if self.parameters['typeofinf'] == 'Historical':
-          header = self.generateNewHeader(df0.columns.values)
+          #skip_cols_historical = how many columns skip before reach the date type columns.
+          #For example if skip_cols_historical = 2 then the first 2 columns will be skipped.
+          if self.parameters.get('skip_cols_historical') == None:
+            self.parameters['skip_cols_historical'] = 1
+          header = self.generateNewHeader(df0.columns.values, self.parameters['skip_cols_historical'])
           df0.columns = header
 
         if self.parameters['section'] == 'Tracking':
@@ -147,7 +151,7 @@ class ReadXlsxFile(GenericInputFile):
 
     return df
 
-  def generateNewHeader(self, columns):
+  def generateNewHeader(self, columns, skip_cols):
     #Genera los encabezados segun formato
     #print(columns)
     newheader = []
@@ -155,7 +159,7 @@ class ReadXlsxFile(GenericInputFile):
 
     #Removiendo 'Datos' temporalmente para trabajar en el formato de fechas
     #print('encabezado : %s'%columns) <-- Control
-    dates = columns[1:]
+    dates = columns[skip_cols:]
 
     #print('dates : %s'%dates) # Punto de Test
     for m in dates:
@@ -163,7 +167,7 @@ class ReadXlsxFile(GenericInputFile):
       newheader.append(periodo)
 
     #Reinsertando 'Datos' a new_header
-    newheader = [columns[0]] + newheader
+    newheader = [columns[0:skip_cols]] + newheader
 
     return newheader
 
@@ -260,7 +264,7 @@ class LoadFileProcess(object):
     l2 = []
 
     for item in self.parser.options(self.section): #
-      if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine':
+      if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine' or item=='skip_cols_historical':
         l2.append(self.parser.getint(self.section,item)) # si la opcion es un entero
 
       elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols', 'colsdatetype']: # si en myconfig.ini la opcion es una lista

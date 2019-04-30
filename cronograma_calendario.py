@@ -13,7 +13,7 @@ import re
 logger = logging.getLogger("")
 logger.setLevel(logging.INFO)
 
-month = '201903'
+month = '201904'
 months = []
 
 inifile = fl.ReadIniFile(mercado="empresas")
