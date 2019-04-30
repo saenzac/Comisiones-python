@@ -7,15 +7,16 @@ from Loader import fileloader as fl
 from Loader import dfutils
 import xlwings as xw
 import pandas as pd
-import numpy as np
+import re
 
+#Initializing the logging instance
 logger = logging.getLogger("")
 logger.setLevel(logging.INFO)
 
-
 month = '201903'
+months = []
 
-inifile = fl.ReadIniFile(mercado="personas")
+inifile = fl.ReadIniFile(mercado="empresas")
 defaultpath = inifile.getDataPath()
 testpath = inifile.getTestPath()
 parser = inifile.getIniFileParser()
@@ -24,14 +25,23 @@ loader = fl.LoadFileProcess(month)
 loader.setParser(parser)
 loader.setDefaultPath(defaultpath)
 
-# Dataframe de archivo comisiones pestaña "Leyenda" de la ruta de Reporte de Productividad
+# Load dataframe of "bases" file
 bases = loader.loadFile('Bases_Que_Nos_Envian')
 bases = bases[bases['CALENDARIO'] == 'SI']
+
+# Generate a list of the headers which contains dates:
+list_of_cols = bases.columns.tolist()
+r = re.compile("^[a-zA-Z]{3}-\d{2}$")
+df_dates_cols = list(filter(r.match, list_of_cols))
+
 bases = bases[['BASE', 'DNI', 'NOMBRES', 'APELLIDOS', 'DIA', 'MES', 'CALENDARIO']]
 bases = bases.fillna(0)
 #data is a array of dictionaries
 
-data = []
+
+
+alldicts = {}
+alldicts["abr-19"] = []
 
 for index, row in bases.iterrows():
   if row.NOMBRES == 0:
@@ -48,7 +58,7 @@ for index, row in bases.iterrows():
   dict_ = {"summary": row.BASE + owner,
            "dtstart": datetime.date(2019, int(row.MES), int(row.DIA))
           }
-  data.append(dict_)
+  alldicts["abr-19"].append(dict_)
 
 cal = Calendar()
 
