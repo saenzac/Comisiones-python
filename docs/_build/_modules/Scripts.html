@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Scripts package &#8212; comisiones-python  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="scripts-package">
+<h1>Scripts package<a class="headerlink" href="#scripts-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="scripts-prepararcomisionantes-module">
+<h2>Scripts.PrepararComisionantes module<a class="headerlink" href="#scripts-prepararcomisionantes-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="scripts-reporteproductividad-module">
+<h2>Scripts.ReporteProductividad module<a class="headerlink" href="#scripts-reporteproductividad-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-Scripts.bonotrimestral">
+<span id="scripts-bonotrimestral-module"></span><h2>Scripts.bonotrimestral module<a class="headerlink" href="#module-Scripts.bonotrimestral" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-Scripts.cronograma_calendario">
+<span id="scripts-cronograma-calendario-module"></span><h2>Scripts.cronograma_calendario module<a class="headerlink" href="#module-Scripts.cronograma_calendario" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.alldicts">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">alldicts</code><em class="property"> = {}</em><a class="headerlink" href="#Scripts.cronograma_calendario.alldicts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of dictionaries. Each element is a dictionary whose value is a python list and the key is the string
+of the form &lt;month&gt;-&lt;year&gt;, e.g. “5-2019”.  And each element of the list is a dictionary. It has the following form:
+alldicts = { list1 = [ dict1={} ] }</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.bases">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">bases</code><em class="property"> =                                                  Base         ...         2019-12-01 00:00:00 0                                  Cuotas VP Empresas         ...                         4.0 1                               Esquema de Incentivos         ...                         4.0 2            Esquema de Comisiones de Grandes Cuentas         ...                         4.0 3              Esquema de Comisiones Pymes y Regiones         ...                         4.0 4           Cuotas Bloqueo de Cartera Grandes Cuentas         ...                         4.0 6              Limpieza de los archivos de comisiones         ...                         8.0 7                      Archivos de Comisiones Esquema         ...                         8.0 8                                             Cesados         ...                         8.0 9           Ingreso de Cuotas Pymes y Grandes Cuentas         ...                         8.0 10                                               Inar         ...                         8.0 11                                Desactivaciones Voz         ...                         8.0 13                                       Seguro Entel         ...                         8.0 14                                          Bolsa BAM         ...                         8.0 16                                 Panel CAL personas         ...                         8.0 17                           Enviar Contratos Calidad         ...                         9.0 18     Cálculo de Comisiones Personas  (Cal Personas)         ...                         9.0 19                                 Panel Adm. Pública         ...                         9.0 20                               Comisiones Mayorista         ...                         9.0 21                                     EPA y Tracking         ...                         9.0 22                                                QNP         ...                         9.0 23                        Comisiones de Jimena Torres         ...                         9.0 24                                       Cuotas  Data         ...                         9.0 25                             Cuentas Especiales VPN         ...                         9.0 26                                RAS + Paq. de Datos         ...                        10.0 27                                   Resultados  Data         ...                        10.0 28                      Panel de P. Comerciales y CDP         ...                        10.0 29                      Cuotas y Resultados Retención         ...                        10.0 30                       Supervisores de Fidelizacion         ...                        10.0 31                      Cuotas y Resultados Televenta         ...                        10.0 32                    Comisiones Jefes y Supervisores         ...                        10.0 33                         Comisiones de Maria Chacon         ...                        10.0 34                 Bloqueo de Cartera Grandes Cuentas         ...                        11.0 35              Churn/Desactivaciones G.C , Pyme, etc         ...                        11.0 36                                               %GSR         ...                        11.0 37                  Migraciones y Bloqueos de Cartera         ...                        11.0 38                                            HC KAMs         ...                        11.0 39                Cliente No Activo a 3 meses Dealers         ...                        11.0 40                           Base de comisiones Pymes         ...                        11.0 41                       Calidad de Venta y Actividad         ...                        11.0 42  Calculo de Comisiones (Plataformas Comerciales...         ...                        11.0 43   Comunicacion de reportes Plataformas Comerciales         ...                        11.0 44       Calculo de Comisiones de Soluciones de Datos         ...                        11.0 45   Calculo de Comisiones ME Pymes y Grandes Cuentas         ...                        12.0 46                Comunicacion de reportes Pymes y GC         ...                        12.0 47   Calculo de Comisiones ME Pymes y Grandes Cuentas         ...                        15.0 48              Comunicación de comisiones a Planilla         ...                        16.0 49         Calculo de ajustes Pymes y Grandes Cuentas         ...                        17.0 51         Calculo de ajustes Pymes y Grandes Cuentas         ...                        18.0 52         Calculo de ajustes Pymes y Grandes Cuentas         ...                        19.0 54              Comunicación de comisiones a Planilla         ...                        22.0 55               Comunicación de reportes de comisión         ...                        22.0 56         Calculo de ajustes Pymes y Grandes Cuentas         ...                        23.0 57     Comunicación de comisiones a Planilla (Saldos)         ...                        24.0 58                         Cálculo de Incentivos Lima         ...                        25.0 59                     Cálculo de Incentivos Regiones         ...                        26.0 60                          Pago de Reprocesos/Saldos         ...                        29.0 61     Comunicación de Incentivos a Gestión Comercial         ...                        30.0  [57 rows x 19 columns]</em><a class="headerlink" href="#Scripts.cronograma_calendario.bases" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dataframe of the Excel File called “…_Bases.xlsx”</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.calendar_output_path">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">calendar_output_path</code><em class="property"> = 'C:/Users/Johnny/OneDrive - Entel Peru S.A/MercadoEmpresas/Calendarios'</em><a class="headerlink" href="#Scripts.cronograma_calendario.calendar_output_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resulting calendar files path</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.calendars">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">calendars</code><em class="property"> = []</em><a class="headerlink" href="#Scripts.cronograma_calendario.calendars" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of calendars</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.datecols">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">datecols</code><em class="property"> = [datetime.datetime(2019, 4, 1, 0, 0), datetime.datetime(2019, 5, 1, 0, 0), datetime.datetime(2019, 6, 1, 0, 0), datetime.datetime(2019, 7, 1, 0, 0), datetime.datetime(2019, 8, 1, 0, 0), datetime.datetime(2019, 9, 1, 0, 0), datetime.datetime(2019, 10, 1, 0, 0), datetime.datetime(2019, 11, 1, 0, 0), datetime.datetime(2019, 12, 1, 0, 0)]</em><a class="headerlink" href="#Scripts.cronograma_calendario.datecols" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of  columns names of the dates only.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.list_of_cols">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">list_of_cols</code><em class="property"> = ['Base', 'DNI', 'Nombres', 'Apellidos', 'Correo', 'Ruta', 'Nombre de la Base', 'Mail Con Delimitador', 'Calendario', 'Calendario Reducido', datetime.datetime(2019, 4, 1, 0, 0), datetime.datetime(2019, 5, 1, 0, 0), datetime.datetime(2019, 6, 1, 0, 0), datetime.datetime(2019, 7, 1, 0, 0), datetime.datetime(2019, 8, 1, 0, 0), datetime.datetime(2019, 9, 1, 0, 0), datetime.datetime(2019, 10, 1, 0, 0), datetime.datetime(2019, 11, 1, 0, 0), datetime.datetime(2019, 12, 1, 0, 0)]</em><a class="headerlink" href="#Scripts.cronograma_calendario.list_of_cols" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of the complete columns names.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.logger">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">logger</code><em class="property"> = &lt;RootLogger root (DEBUG)&gt;</em><a class="headerlink" href="#Scripts.cronograma_calendario.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>The logger instance</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.month">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">month</code><em class="property"> = '201904'</em><a class="headerlink" href="#Scripts.cronograma_calendario.month" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make it optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Prefix of the loaded  excel file. It is mandatory for now. TODO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="data">
+<dt id="Scripts.cronograma_calendario.startdateindex">
+<code class="descclassname">Scripts.cronograma_calendario.</code><code class="descname">startdateindex</code><em class="property"> = 10</em><a class="headerlink" href="#Scripts.cronograma_calendario.startdateindex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index number where the columns become dates</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Scripts">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-Scripts" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">comisiones-python</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Johnny Saenz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_modules/Scripts.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

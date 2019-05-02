@@ -1,0 +1,682 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Loader package &#8212; comisiones-python  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="loader-package">
+<h1>Loader package<a class="headerlink" href="#loader-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-Loader.datacompute">
+<span id="loader-datacompute-module"></span><h2>Loader.datacompute module<a class="headerlink" href="#module-Loader.datacompute" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sat Sep  2 22:22:44 2017</p>
+<p>&#64;author: Calobeto</p>
+<dl class="class">
+<dt id="Loader.datacompute.ComputeBolsas">
+<em class="property">class </em><code class="descclassname">Loader.datacompute.</code><code class="descname">ComputeBolsas</code><a class="headerlink" href="#Loader.datacompute.ComputeBolsas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datacompute.ComputeProcess" title="Loader.datacompute.ComputeProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datacompute.ComputeProcess</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datacompute.ComputeBolsas.prepareDf">
+<code class="descname">prepareDf</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeBolsas.prepareDf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datacompute.ComputeGrossComision">
+<em class="property">class </em><code class="descclassname">Loader.datacompute.</code><code class="descname">ComputeGrossComision</code><span class="sig-paren">(</span><em>params</em>, <em>rules</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeGrossComision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datacompute.ComputeProcess" title="Loader.datacompute.ComputeProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datacompute.ComputeProcess</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datacompute.ComputeGrossComision.prepareDf">
+<code class="descname">prepareDf</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeGrossComision.prepareDf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datacompute.ComputePaquetes">
+<em class="property">class </em><code class="descclassname">Loader.datacompute.</code><code class="descname">ComputePaquetes</code><a class="headerlink" href="#Loader.datacompute.ComputePaquetes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datacompute.ComputeProcess" title="Loader.datacompute.ComputeProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datacompute.ComputeProcess</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datacompute.ComputePaquetes.prepareDf">
+<code class="descname">prepareDf</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputePaquetes.prepareDf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datacompute.ComputeProcess">
+<em class="property">class </em><code class="descclassname">Loader.datacompute.</code><code class="descname">ComputeProcess</code><a class="headerlink" href="#Loader.datacompute.ComputeProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.datacompute.ComputeProcess.neteomanager">
+<code class="descname">neteomanager</code><span class="sig-paren">(</span><em>params</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeProcess.neteomanager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sólo se procesa la data que debe procesarse. En caso ser paquetes se agrega la columna GROSS</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Loader.datacompute.ComputeProcess.prepareDf">
+<code class="descname">prepareDf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeProcess.prepareDf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datacompute.ComputeReversiones">
+<em class="property">class </em><code class="descclassname">Loader.datacompute.</code><code class="descname">ComputeReversiones</code><span class="sig-paren">(</span><em>params</em>, <em>rules</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeReversiones" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datacompute.ComputeProcess" title="Loader.datacompute.ComputeProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datacompute.ComputeProcess</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datacompute.ComputeReversiones.prepareDf">
+<code class="descname">prepareDf</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeReversiones.prepareDf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datacompute.ComputeSumSSAA">
+<em class="property">class </em><code class="descclassname">Loader.datacompute.</code><code class="descname">ComputeSumSSAA</code><a class="headerlink" href="#Loader.datacompute.ComputeSumSSAA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datacompute.ComputeProcess" title="Loader.datacompute.ComputeProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datacompute.ComputeProcess</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datacompute.ComputeSumSSAA.prepareDf">
+<code class="descname">prepareDf</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datacompute.ComputeSumSSAA.prepareDf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Loader.datahandledatabase">
+<span id="loader-datahandledatabase-module"></span><h2>Loader.datahandledatabase module<a class="headerlink" href="#module-Loader.datahandledatabase" title="Permalink to this headline">¶</a></h2>
+<p>Created on Wed Aug 30 13:04:16 2017</p>
+<p>&#64;author: calobeto</p>
+<dl class="class">
+<dt id="Loader.datahandledatabase.DbDataProcess">
+<em class="property">class </em><code class="descclassname">Loader.datahandledatabase.</code><code class="descname">DbDataProcess</code><span class="sig-paren">(</span><em>month</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.configParameters">
+<code class="descname">configParameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.configParameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.dbOperation">
+<code class="descname">dbOperation</code><span class="sig-paren">(</span><em>operation</em>, <em>section</em>, <em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.dbOperation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.display">
+<code class="descname">display</code><span class="sig-paren">(</span><em>paramstable</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.downLoadTable">
+<code class="descname">downLoadTable</code><span class="sig-paren">(</span><em>operation</em>, <em>section</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.downLoadTable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.loadData">
+<code class="descname">loadData</code><span class="sig-paren">(</span><em>section</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.loadData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.setDbName">
+<code class="descname">setDbName</code><span class="sig-paren">(</span><em>dbname</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.setDbName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.setDbPath">
+<code class="descname">setDbPath</code><span class="sig-paren">(</span><em>dbpath</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.setDbPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.setParser">
+<code class="descname">setParser</code><span class="sig-paren">(</span><em>parser</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.setParser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbDataProcess.sqlmaker">
+<code class="descname">sqlmaker</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbDataProcess.sqlmaker" title="Permalink to this definition">¶</a></dt>
+<dd><p>En insert construye una sentencia SQL. Las columnas no pueden estar con espacios.      
+sql = ‘INSERT INTO ‘ + tblhis_ventas + ‘ (RAZON_SOCIAL,CONTRATO,FECHA_PROCESO) VALUES (?, ?, ?)’</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datahandledatabase.DbGenericOperator">
+<em class="property">class </em><code class="descclassname">Loader.datahandledatabase.</code><code class="descname">DbGenericOperator</code><a class="headerlink" href="#Loader.datahandledatabase.DbGenericOperator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbGenericOperator.closeDb">
+<code class="descname">closeDb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbGenericOperator.closeDb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbGenericOperator.deleteTbl">
+<code class="descname">deleteTbl</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbGenericOperator.deleteTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbGenericOperator.openDb">
+<code class="descname">openDb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbGenericOperator.openDb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbGenericOperator.readTbl">
+<code class="descname">readTbl</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbGenericOperator.readTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbGenericOperator.updateTbl">
+<code class="descname">updateTbl</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbGenericOperator.updateTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbGenericOperator.writeTbl">
+<code class="descname">writeTbl</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbGenericOperator.writeTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datahandledatabase.DbSqLiteOperator">
+<em class="property">class </em><code class="descclassname">Loader.datahandledatabase.</code><code class="descname">DbSqLiteOperator</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbSqLiteOperator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datahandledatabase.DbGenericOperator" title="Loader.datahandledatabase.DbGenericOperator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datahandledatabase.DbGenericOperator</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbSqLiteOperator.closeDb">
+<code class="descname">closeDb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbSqLiteOperator.closeDb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbSqLiteOperator.deleteTbl">
+<code class="descname">deleteTbl</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbSqLiteOperator.deleteTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbSqLiteOperator.openDb">
+<code class="descname">openDb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbSqLiteOperator.openDb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbSqLiteOperator.readTbl">
+<code class="descname">readTbl</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbSqLiteOperator.readTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbSqLiteOperator.updateTbl">
+<code class="descname">updateTbl</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbSqLiteOperator.updateTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datahandledatabase.DbSqLiteOperator.writeTbl">
+<code class="descname">writeTbl</code><span class="sig-paren">(</span><em>sql</em>, <em>tuplas</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datahandledatabase.DbSqLiteOperator.writeTbl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Loader.datapreparation">
+<span id="loader-datapreparation-module"></span><h2>Loader.datapreparation module<a class="headerlink" href="#module-Loader.datapreparation" title="Permalink to this headline">¶</a></h2>
+<p>Created on Wed Aug 30 11:20:19 2017</p>
+<p>&#64;author: calobeto</p>
+<dl class="class">
+<dt id="Loader.datapreparation.DataFramePreparation">
+<em class="property">class </em><code class="descclassname">Loader.datapreparation.</code><code class="descname">DataFramePreparation</code><a class="headerlink" href="#Loader.datapreparation.DataFramePreparation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.datapreparation.DataFramePreparation.prepareCols">
+<code class="descname">prepareCols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataFramePreparation.prepareCols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datapreparation.DataframeCleaner">
+<em class="property">class </em><code class="descclassname">Loader.datapreparation.</code><code class="descname">DataframeCleaner</code><span class="sig-paren">(</span><em>keycol</em>, <em>tipo</em>, <em>periodo</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.detectValues">
+<code class="descname">detectValues</code><span class="sig-paren">(</span><em>values_detected</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.detectValues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.fillRows">
+<code class="descname">fillRows</code><span class="sig-paren">(</span><em>subset</em>, <em>panel</em>, <em>keycol</em>, <em>col</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.fillRows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permite detectar elementos de subset en panel y autollena. col es la columna adicional que se crea con el autollenado. 
+Si col = newkeycol se renombra newkeycol.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.getSupervisor">
+<code class="descname">getSupervisor</code><span class="sig-paren">(</span><em>canal</em>, <em>subpanel</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.getSupervisor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.kpiCleaner">
+<code class="descname">kpiCleaner</code><span class="sig-paren">(</span><em>kpis</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.kpiCleaner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.powerPivot">
+<code class="descname">powerPivot</code><span class="sig-paren">(</span><em>panel</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.powerPivot" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://stackoverflow.com/questions/39229005/pivot-table-no-numeric-types-to-aggregate">http://stackoverflow.com/questions/39229005/pivot-table-no-numeric-types-to-aggregate</a>
+No poner KAM en el pivot ya que sale cortado</p>
+<p>Por defecto aggfunc es mean pero hay valores nulos (como los nuevos ingresos), por ello se escoge         aggfunc=’first’</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.rowsChange">
+<code class="descname">rowsChange</code><span class="sig-paren">(</span><em>logins</em>, <em>panel</em>, <em>loginscol</em>, <em>panelcol</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.rowsChange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Busca el login equivalente en caso de logins no encontrados</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.setValues">
+<code class="descname">setValues</code><span class="sig-paren">(</span><em>col</em>, <em>values_detected</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.setValues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.sumValues">
+<code class="descname">sumValues</code><span class="sig-paren">(</span><em>logins</em>, <em>kpis</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.sumValues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.superMerge">
+<code class="descname">superMerge</code><span class="sig-paren">(</span><em>subsetcol</em>, <em>panelcol</em>, <em>subset</em>, <em>panel</em>, <em>comisionantes</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.superMerge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Las posiciones deben ser identicas para hacer el merge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Loader.datapreparation.DataframeCleaner.wrangler">
+<code class="descname">wrangler</code><span class="sig-paren">(</span><em>data=None</em>, <em>results=None</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.DataframeCleaner.wrangler" title="Permalink to this definition">¶</a></dt>
+<dd><p>data es objetivos o panel de plataformas</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datapreparation.HistoricalDataFrame">
+<em class="property">class </em><code class="descclassname">Loader.datapreparation.</code><code class="descname">HistoricalDataFrame</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.HistoricalDataFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datapreparation.DataFramePreparation" title="Loader.datapreparation.DataFramePreparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datapreparation.DataFramePreparation</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datapreparation.HistoricalDataFrame.prepareCols">
+<code class="descname">prepareCols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.HistoricalDataFrame.prepareCols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datapreparation.OtherPlainDataFrame">
+<em class="property">class </em><code class="descclassname">Loader.datapreparation.</code><code class="descname">OtherPlainDataFrame</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.OtherPlainDataFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datapreparation.DataFramePreparation" title="Loader.datapreparation.DataFramePreparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datapreparation.DataFramePreparation</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datapreparation.OtherPlainDataFrame.prepareCols">
+<code class="descname">prepareCols</code><span class="sig-paren">(</span><em>section</em>, <em>data</em>, <em>periodo</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.OtherPlainDataFrame.prepareCols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datapreparation.PlainDataFrame">
+<em class="property">class </em><code class="descclassname">Loader.datapreparation.</code><code class="descname">PlainDataFrame</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.PlainDataFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datapreparation.DataFramePreparation" title="Loader.datapreparation.DataFramePreparation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datapreparation.DataFramePreparation</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datapreparation.PlainDataFrame.prepareCols">
+<code class="descname">prepareCols</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datapreparation.PlainDataFrame.prepareCols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convierte datetimes to string dates si usas sqlite</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Loader.datavalidator">
+<span id="loader-datavalidator-module"></span><h2>Loader.datavalidator module<a class="headerlink" href="#module-Loader.datavalidator" title="Permalink to this headline">¶</a></h2>
+<p>Created on Mon Aug 28 21:31:25 2017</p>
+<p>&#64;author: Calobeto</p>
+<dl class="class">
+<dt id="Loader.datavalidator.ValidateDataFrame">
+<em class="property">class </em><code class="descclassname">Loader.datavalidator.</code><code class="descname">ValidateDataFrame</code><a class="headerlink" href="#Loader.datavalidator.ValidateDataFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.datavalidator.ValidateDataFrame.display">
+<code class="descname">display</code><span class="sig-paren">(</span><em>exportparams</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datavalidator.ValidateDataFrame.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datavalidator.ValidateDataFrame.exportValidation">
+<code class="descname">exportValidation</code><span class="sig-paren">(</span><em>exportparams</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datavalidator.ValidateDataFrame.exportValidation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.datavalidator.ValidateDataFrame.validation">
+<code class="descname">validation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datavalidator.ValidateDataFrame.validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datavalidator.ValidateInar">
+<em class="property">class </em><code class="descclassname">Loader.datavalidator.</code><code class="descname">ValidateInar</code><span class="sig-paren">(</span><em>dataframelist</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datavalidator.ValidateInar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datavalidator.ValidateDataFrame" title="Loader.datavalidator.ValidateDataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datavalidator.ValidateDataFrame</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datavalidator.ValidateInar.validation">
+<code class="descname">validation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datavalidator.ValidateInar.validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.datavalidator.ValidateMultipleData">
+<em class="property">class </em><code class="descclassname">Loader.datavalidator.</code><code class="descname">ValidateMultipleData</code><span class="sig-paren">(</span><em>dataframelist</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datavalidator.ValidateMultipleData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.datavalidator.ValidateDataFrame" title="Loader.datavalidator.ValidateDataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.datavalidator.ValidateDataFrame</span></code></a></p>
+<dl class="method">
+<dt id="Loader.datavalidator.ValidateMultipleData.validation">
+<code class="descname">validation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.datavalidator.ValidateMultipleData.validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Loader.dfutils">
+<span id="loader-dfutils-module"></span><h2>Loader.dfutils module<a class="headerlink" href="#module-Loader.dfutils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Loader.dfutils.getExcelColIndexFromDF">
+<code class="descclassname">Loader.dfutils.</code><code class="descname">getExcelColIndexFromDF</code><span class="sig-paren">(</span><em>df</em>, <em>colname</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.dfutils.getExcelColIndexFromDF" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-Loader.fileloader">
+<span id="loader-fileloader-module"></span><h2>Loader.fileloader module<a class="headerlink" href="#module-Loader.fileloader" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sun Aug 13 16:00:01 2017</p>
+<p>&#64;author: Calobeto</p>
+<dl class="class">
+<dt id="Loader.fileloader.GenericInputFile">
+<em class="property">class </em><code class="descclassname">Loader.fileloader.</code><code class="descname">GenericInputFile</code><a class="headerlink" href="#Loader.fileloader.GenericInputFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.fileloader.GenericInputFile.display">
+<code class="descname">display</code><span class="sig-paren">(</span><em>paramsfile</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.GenericInputFile.display" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.GenericInputFile.readFile">
+<code class="descname">readFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.GenericInputFile.readFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.fileloader.LoadFileProcess">
+<em class="property">class </em><code class="descclassname">Loader.fileloader.</code><code class="descname">LoadFileProcess</code><span class="sig-paren">(</span><em>month</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.adjustDataframe">
+<code class="descname">adjustDataframe</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.adjustDataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.configParameters">
+<code class="descname">configParameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.configParameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rutina que importa myconfig.ini y construye el dict</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.generateInputs">
+<code class="descname">generateInputs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.generateInputs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.getFileList">
+<code class="descname">getFileList</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.getFileList" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.getParameters">
+<code class="descname">getParameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.getParameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.getPeriodo">
+<code class="descname">getPeriodo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.getPeriodo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.loadFile">
+<code class="descname">loadFile</code><span class="sig-paren">(</span><em>section</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.loadFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.loadHistoricalFile">
+<code class="descname">loadHistoricalFile</code><span class="sig-paren">(</span><em>section</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.loadHistoricalFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.prepareHistoricalFiles">
+<code class="descname">prepareHistoricalFiles</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.prepareHistoricalFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.prepareOtherPlainFiles">
+<code class="descname">prepareOtherPlainFiles</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.prepareOtherPlainFiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.setDefaultPath">
+<code class="descname">setDefaultPath</code><span class="sig-paren">(</span><em>defaultpath</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.setDefaultPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.LoadFileProcess.setParser">
+<code class="descname">setParser</code><span class="sig-paren">(</span><em>parser</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.LoadFileProcess.setParser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.fileloader.ReadExcelFile">
+<em class="property">class </em><code class="descclassname">Loader.fileloader.</code><code class="descname">ReadExcelFile</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadExcelFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.fileloader.GenericInputFile" title="Loader.fileloader.GenericInputFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.fileloader.GenericInputFile</span></code></a></p>
+<dl class="method">
+<dt id="Loader.fileloader.ReadExcelFile.readFile">
+<code class="descname">readFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadExcelFile.readFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.fileloader.ReadIniFile">
+<em class="property">class </em><code class="descclassname">Loader.fileloader.</code><code class="descname">ReadIniFile</code><span class="sig-paren">(</span><em>mercado</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.fileloader.GenericInputFile" title="Loader.fileloader.GenericInputFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.fileloader.GenericInputFile</span></code></a></p>
+<p>Description for class</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">ivar var1</dt>
+<dd class="field-odd"><p>initial value: par1</p>
+</dd>
+<dt class="field-even">ivar var2</dt>
+<dd class="field-even"><p>initial value: par2</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.getDataPath">
+<code class="descname">getDataPath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.getDataPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.getDbIniFileParser">
+<code class="descname">getDbIniFileParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.getDbIniFileParser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.getIniFileParser">
+<code class="descname">getIniFileParser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.getIniFileParser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.getTestPath">
+<code class="descname">getTestPath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.getTestPath" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.parseDBIniFile">
+<code class="descname">parseDBIniFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.parseDBIniFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.parseGlobalsIniFile">
+<code class="descname">parseGlobalsIniFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.parseGlobalsIniFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.parseIniFile">
+<code class="descname">parseIniFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.parseIniFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadIniFile.readFile">
+<code class="descname">readFile</code><span class="sig-paren">(</span><em>inifile</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadIniFile.readFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.fileloader.ReadTxtFile">
+<em class="property">class </em><code class="descclassname">Loader.fileloader.</code><code class="descname">ReadTxtFile</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadTxtFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.fileloader.GenericInputFile" title="Loader.fileloader.GenericInputFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.fileloader.GenericInputFile</span></code></a></p>
+<dl class="method">
+<dt id="Loader.fileloader.ReadTxtFile.readFile">
+<code class="descname">readFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadTxtFile.readFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="Loader.fileloader.ReadXlsxFile">
+<em class="property">class </em><code class="descclassname">Loader.fileloader.</code><code class="descname">ReadXlsxFile</code><span class="sig-paren">(</span><em>parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadXlsxFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Loader.fileloader.GenericInputFile" title="Loader.fileloader.GenericInputFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Loader.fileloader.GenericInputFile</span></code></a></p>
+<p>Description for class</p>
+<blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">ivar var1</dt>
+<dd class="field-odd"><p>initial value: par1</p>
+</dd>
+<dt class="field-even">ivar var2</dt>
+<dd class="field-even"><p>initial value: par2</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="method">
+<dt id="Loader.fileloader.ReadXlsxFile.generateNewHeader">
+<code class="descname">generateNewHeader</code><span class="sig-paren">(</span><em>columns</em>, <em>skip_cols</em><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadXlsxFile.generateNewHeader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="Loader.fileloader.ReadXlsxFile.readFile">
+<code class="descname">readFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Loader.fileloader.ReadXlsxFile.readFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-Loader.globals">
+<span id="loader-globals-module"></span><h2>Loader.globals module<a class="headerlink" href="#module-Loader.globals" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sun Aug 13 16:00:01 2017</p>
+<p>&#64;author: Johnny Saenz Acuna</p>
+</div>
+<div class="section" id="module-Loader">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-Loader" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">comisiones-python</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Johnny Saenz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_modules/Loader.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

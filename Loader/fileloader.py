@@ -11,6 +11,7 @@ import os
 import posixpath
 from pandas import Series, DataFrame
 from configparser import ConfigParser
+import numpy as np
 import codecs
 import ast
 from Loader import datapreparation as dp
@@ -93,6 +94,12 @@ class ReadExcelFile(GenericInputFile):
 
 
 class ReadXlsxFile(GenericInputFile):
+  """
+  Description for class
+
+    :ivar var1: initial value: par1
+    :ivar var2: initial value: par2
+  """
   #Importación de archivo xlsx que tengan mismo nombre clave. Puede unir varios archivos de carpetas distintas, unir hojas
 
   def __init__(self, parameters):
@@ -129,11 +136,13 @@ class ReadXlsxFile(GenericInputFile):
         else:
           df0 = workbook.parse(sheet_name=sheet, skiprows=self.parameters['skiprows'], na_values=self.parameters['navalues'], usecols=self.parameters['parsecols'])
 
-        #Eliminando Columnas y filas sin data
+        #Eliminando Columnas y filas sin data0
         #print(df0.columns) # punto de test
 
         df0 = df0.dropna(axis=1, how='all')
         df0 = df0.dropna(how='all')
+
+
 
         if self.parameters['typeofinf'] == 'Historical':
           #skip_cols_historical = how many columns skip before reach the date type columns.
@@ -143,9 +152,11 @@ class ReadXlsxFile(GenericInputFile):
           header = self.generateNewHeader(df0.columns.values, self.parameters['skip_cols_historical'])
           df0.columns = header
 
+        if self.parameters['take_many_months'] == 1:
+          self.parameters['cols'] = self.parameters['cols'] + header[self.parameters['skip_cols_historical']:]
+
         if self.parameters['section'] == 'Tracking':
           df = df.merge(df0, on='Datos', how='right')
-
         else:
           df = df.append(df0[self.parameters['cols']], ignore_index=True)
 
@@ -167,12 +178,19 @@ class ReadXlsxFile(GenericInputFile):
       newheader.append(periodo)
 
     #Reinsertando 'Datos' a new_header
-    newheader = [columns[0:skip_cols]] + newheader
+    newheader = columns[0:skip_cols].tolist() + newheader
 
     return newheader
 
 
 class ReadIniFile(GenericInputFile):
+  """
+  Description for class
+
+    :ivar var1: initial value: par1
+    :ivar var2: initial value: par2
+  """
+
   def __init__(self, mercado):
     self.mercado = mercado
     self.parserini = self.parseIniFile()
@@ -193,11 +211,13 @@ class ReadIniFile(GenericInputFile):
     if self.mercado == "empresas":
       self.parserini['DEFAULT']['mercado'] = "empresas"
       self.parserdbini['DEFAULT']['mercado'] = "empresas"
+      self.parserini['DEFAULT']['mainpath_esp'] = posixpath.join(self.mainpath, 'MercadoEmpresas')
       self.datapath = posixpath.join(self.mainpath, 'MercadoEmpresas/Data Fuente Comisiones/xlsx')
       self.testpath = posixpath.join(self.mainpath, 'MercadoEmpresas/Data Fuente Comisiones/test')
     elif self.mercado == "personas":
       self.parserini['DEFAULT']['mercado'] = "personas"
       self.parserdbini['DEFAULT']['mercado'] = "personas"
+      self.parserini['DEFAULT']['mainpath_esp'] = posixpath.join(self.mainpath, 'MercadoPersonas')
       self.datapath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/xlsx')
       self.testpath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/test')
 
@@ -264,7 +284,7 @@ class LoadFileProcess(object):
     l2 = []
 
     for item in self.parser.options(self.section): #
-      if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine' or item=='skip_cols_historical':
+      if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine' or item=='skip_cols_historical' or item=='take_many_months' or item=='no_mayus_colsname':
         l2.append(self.parser.getint(self.section,item)) # si la opcion es un entero
 
       elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols', 'colsdatetype']: # si en myconfig.ini la opcion es una lista
@@ -276,19 +296,6 @@ class LoadFileProcess(object):
     self.parameters = dict(zip(self.parser.options(self.section),l2))
 
     keyfile = self.parameters['keyfile']
-    if self.month :
-      self.parameters['keyfile'] = [self.month + item for item in self.parameters['keyfile']]
-      self.parameters['periodo'] = self.periodo
-
-    if self.section == 'Logins' or self.section == 'Metricas_conjuntas':
-      self.parameters['keyfile'] = keyfile
-
-    if self.parameters['typeofinf'] == 'Historical':
-      self.parameters['cols'].append(self.periodo)
-
-    if not self.parameters['datadir'] :
-      self.parameters['datadir'] = self.defaultpath
-
     if 'allcols' not in  self.parameters:
       self.parameters['allcols'] = 0
 
@@ -297,6 +304,28 @@ class LoadFileProcess(object):
 
     if 'read_engine' not in self.parameters:
       self.parameters['read_engine'] = 0
+
+    if 'take_many_months' not in self.parameters:
+      self.parameters['take_many_months'] = 0
+
+    if 'no_mayus_colsname' not in self.parameters:
+      self.parameters['no_mayus_colsname'] = 0
+
+    if self.month :
+      self.parameters['keyfile'] = [self.month + item for item in self.parameters['keyfile']]
+      self.parameters['periodo'] = self.periodo
+
+    if self.section == 'Logins' or self.section == 'Metricas_conjuntas':
+      self.parameters['keyfile'] = keyfile
+
+    if self.parameters['typeofinf'] == 'Historical':
+      if self.parameters['take_many_months'] == 0:
+        self.parameters['cols'].append(self.periodo)
+
+    if not self.parameters['datadir'] :
+      self.parameters['datadir'] = self.defaultpath
+
+
 
   def adjustDataframe(self, data):
 
@@ -330,7 +359,10 @@ class LoadFileProcess(object):
       fileobj = ReadXlsxFile(self.parameters) # Carga de hojas historicas
 
     df0 = fileobj.readFile()
-    df = self.adjustDataframe(df0)
+    if self.parameters['no_mayus_colsname'] == 0:
+      df = self.adjustDataframe(df0)
+    else:
+      df = df0.copy()
 
     # cambio de nombres de columna
     if self.parser.has_option(section, 'colstochange'):

@@ -1,0 +1,18 @@
+ package
+========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    .Loader
+    .Scripts
+
+Module contents
+---------------
+
+.. automodule:: 
+    :members:
+    :undoc-members:
+    :show-inheritance:
