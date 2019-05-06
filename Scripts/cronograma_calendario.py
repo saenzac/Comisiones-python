@@ -45,7 +45,7 @@ class GenCalendar:
 
     #: Dataframe of the Excel File called "..._Bases.xlsx"
     self.bases = loader.loadFile('Bases_Que_Nos_Envian2')
-    self.bases = self.bases[self.bases['Calendario'] == 'SI']
+    self.bases = self.bases[self.bases['Calendario Reducido'] == 'SI']
     self.bases = self.bases.fillna(0) #fill all na values with 0
 
     #: List of the complete columns names.
@@ -95,3 +95,7 @@ class GenCalendar:
       f = open(filepath, 'wb')
       f.write(cal.to_ical())
       f.close()
+
+
+a = GenCalendar()
+a.work()
