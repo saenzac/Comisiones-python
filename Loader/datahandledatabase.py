@@ -182,30 +182,30 @@ class DbDataProcess(object):
                 computegross = dc.ComputeGrossComision(self.parameters, rules)
  
                 df = computegross.prepareDf(data)
-            
+
             elif section ==  'Reversiones':
                 rules = self.loadData('tblReversionesRules')      
                 rules = rules[rules['STATE_RULE'] != 'not_active']
                 rules.drop(self.parameters['dropcols'], axis = 1, inplace =True)
-                
+
                 data = self.loadData('Reversiones')
                 self.parameters['dboperation'] = operation # retomando el proceso update
                 computerev = dc.ComputeReversiones(self.parameters, rules)
-                
+
                 df = computerev.prepareDf(data)
-                
+
             elif section == 'Unitarios':
                 df = data[data['COMISION_UNITARIA'] != 0]                
                 df = df.drop_duplicates(['CONTRATO'], keep='last')
                 df.reset_index(inplace = True,drop = True)
                 #print(len(df))# control
-                
+
             else:
                 df = data.copy()
                 #print(df.columns)
-            
+
             self.parameters['cols'] = self.parameters['criterycols'] + self.parameters['colstoupdate'] 
-        
+
         #print(self.parameters['cols']) # punto de test
         querys = self.sqlmaker(self.parameters)
         dbobj = DbSqLiteOperator(self.parameters)
@@ -218,33 +218,32 @@ class DbDataProcess(object):
                
             dbobj.deleteTbl(querys['sqldel'])
             dbobj.writeTbl(querys['sql'], tuplas)
-            
+
         elif operation == 'update':
             comment = 'actualizados'
             df[self.parameters['cols']].to_sql(self.parameters['tblname'] + '_temp', dbobj.conn, if_exists='replace', index=False)
             dbobj.updateTbl(querys['sql'])
-            
+
         dbobj.closeDb()       
-        
+
         paramstable = {'section' : self.section, 'lenght' : len(df), 'comment' : comment}
         self.display(paramstable)
 
     def downLoadTable(self, operation, section):
-          
         self.section = section
         self.configParameters()
         self.parameters['dboperation'] = operation
         querys = self.sqlmaker(self.parameters)
-        
+
         dbobj = DbSqLiteOperator(self.parameters)
         dbobj.openDb()
         df = dbobj.readTbl(querys)
         dbobj.closeDb()
-        
+
         return df
-        
+
     def sqlmaker(self, parameters):
-        
+
         """ En insert construye una sentencia SQL. Las columnas no pueden estar con espacios.      
         sql = 'INSERT INTO ' + tblhis_ventas + ' (RAZON_SOCIAL,CONTRATO,FECHA_PROCESO) VALUES (?, ?, ?)' """
         
@@ -260,7 +259,11 @@ class DbDataProcess(object):
 
             sqldel = 'DELETE FROM ' + tblname + ' WHERE ' + tblname + '.' + self.parameters['keyperiod'] + ' = ' + self.month
 
-        elif parameters['dboperation'] == 'update':       
+        #UPDATE tblhis_ventas SET CONTRATO = (SELECT CONTRATO FROM tblhis_ventas_temp WHERE tblhis_ventas_temp.CONTRATO = tblhis_ventas.CONTRATO)
+        #, ACCESSPAQUETE = (SELECT ACCESSPAQUETE FROM tblhis_ventas_temp WHERE tblhis_ventas_temp.CONTRATO = tblhis_ventas.CONTRATO) WHERE CONTRATO IN(SELECT CONTRATO FROM tblhis_ventas_temp)
+
+
+        elif parameters['dboperation'] == 'update':
             sql = 'UPDATE ' + tblname + ' SET ' + \
             ', '.join(col + ' = ' + '(SELECT ' + col + ' FROM ' + tblname + '_temp' +' WHERE ' + 
                       ' AND '.join(tblname + '_temp' + '.' + col2 + ' = ' + tblname + '.' + col2 for col2 

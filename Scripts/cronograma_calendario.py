@@ -44,7 +44,7 @@ class GenCalendar:
     self.calendar_output_path = posixpath.join(mainpath, "Calendarios")
 
     #: Dataframe of the Excel File called "..._Bases.xlsx"
-    self.bases = loader.loadFile('Bases_Que_Nos_Envian2')
+    self.bases = loader.loadFile('Bases_Que_Nos_Envian')
     self.bases = self.bases[self.bases['Calendario Reducido'] == 'SI']
     self.bases = self.bases.fillna(0) #fill all na values with 0
 

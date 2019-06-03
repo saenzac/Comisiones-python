@@ -3,7 +3,7 @@ from Loader import dfutils
 import xlwings as xw
 import pandas as pd
 
-month = '201902'
+month = '201904'
 
 inifile = fl.ReadIniFile(mercado="empresas")
 datapath = inifile.getDataPath()
@@ -54,4 +54,3 @@ for i in range(len(inis)):
 
   wb.save()
   wb.close()
-  
