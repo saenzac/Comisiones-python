@@ -261,13 +261,18 @@ class ReadIniFile(GenericInputFile):
    section: El nombre de la sección a considerar
 '''
 class SectionObj(object):
+    #Los atributos principales son self.parser, self.section, self.month.
     def __init__(self, inifile, section, month = None):
         self.parser = inifile.getIniFileParser()
         self.section = section
         self.month = month
+        self.datapath = inifile.getDataPath()
         self.parameters = None
         self.defaultpath = None
+        self.reloadParameters()
 
+    #Creamos una funcion que inializa la variable Parameters, ya que esta depende de las variables de clase.
+    def reloadParameters(self):
         yeardic = {'201701':'ene-17','201702':'feb-17','201703':'mar-17','201704':'abr-17','201705':'may-17','201706':'jun-17',
                     '201707':'jul-17','201708': 'ago-17', '201709': 'sep-17', '201710': 'oct-17', '201711': 'nov-17','201712': 'dic-17',
                     '201801':'ene-18','201802':'feb-18','201803':'mar-18','201804':'abr-18','201805':'may-18','201806':'jun-18',
@@ -288,6 +293,9 @@ class SectionObj(object):
         self.parameters = dict(zip(self.parser.options(self.section),l2))
 
         keyfile = self.parameters['keyfile']
+        self.parameters['section'] = self.section
+        self.parameters['mainpath_mercado'] = self.parser['DEFAULT']['mainpath_esp']
+
         if 'allcols' not in  self.parameters:
             self.parameters['allcols'] = 0
 
@@ -317,12 +325,11 @@ class SectionObj(object):
             self.parameters['cols'].append(self.periodo)
 
         if not self.parameters['datadir'] :
-          self.parameters['datadir'] = [inifile.getDataPath()]
+          self.parameters['datadir'] = [self.datapath]
 
         filelist = self.generateInputs()
-
         self.parameters['filelist'] = filelist
-        self.parameters['section'] = section
+
 
     def generateInputs(self):
         datadir = self.parameters['datadir']
