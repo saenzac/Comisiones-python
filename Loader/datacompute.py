@@ -29,13 +29,15 @@ class ComputeProcess(object):
     @abc.abstractmethod
     def prepareDf(self):
         pass
-        
+
     def neteomanager(self, params, data):
         """Sólo se procesa la data que debe procesarse. En caso ser paquetes se agrega la columna GROSS"""
         
         df = data.copy()
-        
-        # Si la columna GROSS no está creada en los paquetes. Se crea. 
+        ###paramsdeac = {'colsum' : 'DEAC', 'colsecuence' : ['TELEFONO', 'CODIGO_PADRE', 'VENDEDOR_ACTIVACION'],
+        ###          'colfilter' : 'VENDEDOR_ACTIVACION', 'sortlist' : ['VENDEDOR_ACTIVACION', 'DEAC', 'TELEFONO'],
+        ###          'booleanlist' : [True, False, True]}
+        # Si la columna GROSS no está creada en los paquetes. Se crea.
         colsum = params['colsum']
         colfilter = params['colfilter']
         if colsum == '':
@@ -43,7 +45,7 @@ class ComputeProcess(object):
             #print(colsum)
             colsum = 'GROSS' # Calcular el GROSS.
             df[colsum] = df['ESTADO'].apply(lambda x : 1 if (x == grosslist[0] or x == grosslist[1] or x == grosslist[2] or x == grosslist[3]) else -1)
-           
+
         # Ordenando la información
         df = df.sort_values(by = params['sortlist'], ascending = params['booleanlist'])
 
@@ -52,10 +54,15 @@ class ComputeProcess(object):
         prefix = 'NETEO_'
      
         for col in params['colsecuence']:
+            # Se crea la serie de columna 'colsum' y luego se agrupa por 'col'y se suma en 'colsum'
             seriesum = df.groupby(col)[colsum].sum()
+            #Se crea un dataframe a partir de la serie anterior y se resetea el indice
             dfsum = pd.DataFrame(seriesum).reset_index()
-            dfsum.rename(columns = {colsum : prefix + col},inplace=True) 
+            #Se cambia el nombre de 'colsum' a uno que identifica la
+            dfsum.rename(columns = {colsum : prefix + col},inplace=True)
+            #El dataframe original es fusionado con el nuevo dataframe reducido: dfsum
             df = df.merge(dfsum, on = col)
+            #Solo mantiene los registros diferentes de cero en la columna 'prefix + col'
             df = df[df[prefix + col] != 0]
 
         # El ultimo elemento de la lista colsecuence filtra aquellos vendedores que tengan solo deacs o paquetes 
@@ -65,7 +72,7 @@ class ComputeProcess(object):
         # Ordenando nuevamente la información y agregando correlativo
         df = df.sort_values(by=params['sortlist'], ascending = params['booleanlist'])
         df.reset_index(inplace = True)
-        df['CORRELATIVO'] = df.index.values
+        df['CORRELATIVO'] = df.index.values # numeracion del 1 hacia arriba la guardamos en la columna CORRELATIVO
 
         # Aplicando el último filtro
         posvalues = df[[colfilter, 'CORRELATIVO']].groupby(colfilter).first()
@@ -177,8 +184,14 @@ class ComputeGrossComision(ComputeProcess):
 
         return df
 
+
 class ComputeReversiones(ComputeProcess):
-    
+    """
+    Description for class
+
+      :ivar var1: initial value: par1
+      :ivar var2: initial value: par2
+    """
     def __init__(self, params, rules):
         self.rules = rules
         self.params = params    
@@ -200,7 +213,7 @@ class ComputeReversiones(ComputeProcess):
         positions = self.rules.drop_duplicates(['POSICION_EMPL'], keep='last')['POSICION_EMPL']
         df = df[df['POSICION_EMPL'].isin(positions)]  
               
-        df['ACCESS_TOTAL'] = df['ACCESS'] + df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']  
+        df['ACCESS_TOTAL'] = df['ACCESS'] #+ df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']
         df['FECHA_PROCESO'] = pd.to_datetime(df['FECHA_PROCESO'], dayfirst = True, errors='coerce')
         df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, errors='coerce')
         df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario     
@@ -220,12 +233,13 @@ class ComputeReversiones(ComputeProcess):
         
         #reordering the cols
         #print(cols)
+        #colsordered: ['FACTOR_REVERSION', 'PESO_CAPTURA', 'TIPO_REVERSION', 'POSICION_EMPL', 'RANGO_DESACTIVACION', 'PACK_CHIP', 'PORTABILIDAD', 'CATEGORIA_MOTIVO_DEAC', 'CATEGORIA_TECNOLOGIAEQUIPO']
         colscriterios = [x for x in cols if x not in colsfactor]
         colsordered = colsfactor + colscriterios
         self.rules = self.rules[colsordered]
         ### Trabajar este Archivo reversiones brutas. En caso que aparezca FChurn, DEOF, ADDOF o NEWOF netearlo con algun deac de la cuenta o consultor
         ### Calcular la reversión unitaria en excel tal como se indica en 
-        ### Tener en cuenta la columna penalidad. Si 0, se revierte si tiene 100% de penalidad no le corresponde reversion, Si tiene 25% de penalidad sobre aplicarle
+        ### Tener en cuenta la columna penalidad. Si 0 se revierte, si tiene 100% de penalidad no le corresponde reversion, Si tiene 25% de penalidad sobre aplicarle
         ### el 75% de la reversión
         
         #df.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
@@ -236,7 +250,10 @@ class ComputeReversiones(ComputeProcess):
             #i = i + 1
             rowfactor = row[1:len(colsfactor) + 1]
             factors = rowfactor[0] * rowfactor[1]
-            rowcriterios = row[len(colsfactor) + 1:]               
+            #len(colsfactor) = 3
+            #row es una tupla, al hacer un slice sigue siendo una tupla.
+            rowcriterios = row[len(colsfactor) + 1:]
+            #convierte la tupla rowcriterios a una lista
             match_list = list(rowcriterios)
             realindex = [x for x in range(len(match_list)) if match_list[x] != '']
             criterios = [x for x in match_list if x != '']
@@ -253,7 +270,7 @@ class ComputeReversiones(ComputeProcess):
                 df.loc[rowstochange, 'TIPO_REVERSION'] = 'NETEO'
                 #print(df.loc[rowstochange, 'TIPO_REVERSION']) # Punto de Control
                 #df.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas' + str(i) + '.csv')
-         
+
          # Ingresando el cálculo de penalidad
             #print(df.columns)
 

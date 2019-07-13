@@ -6,4 +6,3 @@
 
    
    Loader
-   Scripts

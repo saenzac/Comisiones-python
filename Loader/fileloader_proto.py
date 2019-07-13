@@ -121,7 +121,7 @@ class ReadXlsxFile(GenericInputFile):
     for item in filelist:
       print('Archivo:', item)
       workbook = pd.ExcelFile(item, encoding='utf-8')
-
+      #workbook = pd.ExcelFile(item)
       if self.parameters['presetsheet'] == '':
         sheets = workbook.sheet_names
       else:

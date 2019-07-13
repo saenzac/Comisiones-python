@@ -76,7 +76,12 @@ class DbSqLiteOperator(DbGenericOperator):
         cursor = self.conn.cursor()
         cursor.execute(query)
         self.conn.commit()
-         
+
+    def customQueryTbl(self, query):
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+        self.conn.commit()
+        cursor.close()
          
 class DbDataProcess(object):
     
@@ -107,13 +112,32 @@ class DbDataProcess(object):
         self.parameters['section'] = self.section
         self.parameters['dbpath'] = self.dbpath
         self.parameters['dbname'] = self.dbname
-                
-    
+
+    #Ejecucion de alguna operacion sql requerida como paso previo a la carga de una tabla  a un Dataframe.
+    def pre_loadData(self, section):
+
+        self.section = section
+        self.configParameters()
+        if section in ['Reversiones']:
+            self.parameters['dboperation'] = 'create_temp_table_from_view'
+
+        querys = self.sqlmaker(self.parameters)
+        self.parameters['sql'] = querys['sql']
+        self.parameters['sqldel'] = querys['sqldel']
+
+        dbobj = DbSqLiteOperator(self.parameters)
+        dbobj.openDb()
+        dbobj.customQueryTbl(self.parameters['sqldel'])
+        dbobj.customQueryTbl(self.parameters['sql'])
+        dbobj.closeDb()
+
+    #Carga data de una tabla hacia un dataframe
+    #Si la ejecucion previa de una sentencia sql es requerida usar primero la funcion self.pre_loadData()
     def loadData(self, section):
         
         self.section = section
         self.configParameters()
-        if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz','Reversiones','View_Deacs_SSAA']:
+        if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz','View_Deacs_SSAA']:
             self.parameters['dboperation'] = 'read_complex'
             ending = ['activacion' if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz'] else 'desactivacion']
             keyperiod = 'periodo_' + ending[0]
@@ -124,7 +148,11 @@ class DbDataProcess(object):
             ending = ['activacion' if section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Test'] else 'desactivacion']
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
-            
+        elif section in ['Reversiones']:
+            self.parameters['dboperation'] = 'read_complex_temp_table'
+            ending = ['desactivacion']
+            keyperiod = 'periodo_' + ending[0]
+            self.parameters['keyperiod'] = keyperiod
         else:
             self.parameters['dboperation'] = 'read'
         
@@ -160,11 +188,11 @@ class DbDataProcess(object):
             if section == 'Bolsas':
                 computebol = dc.ComputeBolsas()
                 df = computebol.prepareDf(data)
-                
+
             elif section == 'SumVentaSSAA':
                 compute = dc.ComputeSumSSAA()
                 df = compute.prepareDf(data)
-                
+
             elif section == 'Paquetes':             
                 data = self.loadData('Paquetes')
                 self.parameters['dboperation'] = operation # retomando el proceso update
@@ -185,15 +213,16 @@ class DbDataProcess(object):
 
             elif section ==  'Reversiones':
                 rules = self.loadData('tblReversionesRules')      
-                rules = rules[rules['STATE_RULE'] != 'not_active']
+                rules = rules[rules['STATE_RULE'] != 'inactive']
                 rules.drop(self.parameters['dropcols'], axis = 1, inplace =True)
-
+                #Copiamos la vista Reversiones a una tabla temporal para leer la data desde dicho origen.
+                #Cuando se lee directamente de la vista el performance es muy pobre (demora casi 1 hora)
+                self.pre_loadData('Reversiones')
+                #Leemos la data desde la tabla temporal creada.
                 data = self.loadData('Reversiones')
                 self.parameters['dboperation'] = operation # retomando el proceso update
                 computerev = dc.ComputeReversiones(self.parameters, rules)
-
                 df = computerev.prepareDf(data)
-
             elif section == 'Unitarios':
                 df = data[data['COMISION_UNITARIA'] != 0]                
                 df = df.drop_duplicates(['CONTRATO'], keep='last')
@@ -243,13 +272,31 @@ class DbDataProcess(object):
         return df
 
     def sqlmaker(self, parameters):
+        """
+        Genera sentencias sql de acuerdo a la operación deseada
 
-        """ En insert construye una sentencia SQL. Las columnas no pueden estar con espacios.      
-        sql = 'INSERT INTO ' + tblhis_ventas + ' (RAZON_SOCIAL,CONTRATO,FECHA_PROCESO) VALUES (?, ?, ?)' """
-        
+        ** En "insert" construye una sentencia SQL. Las columnas no pueden estar con espacios.
+        sql = 'INSERT INTO ' + tblhis_ventas + ' (col[0],col[1],col[2]) VALUES (?, ?, ?)'
+
+        ** En "update" actualiza una tabla insertando primero la data en una tabla temporal.
+          Se crea una tabla temporal y las columnas se actualizan en la tabla destino.
+            Ejemplo:
+            tblname = "tblname"
+            parameters = {}
+            parameters['cols'] = ['COLS1', 'COLS2']
+            parameters['criterycols'] = ['CRITERYCOL1', 'CRITERYCOL2','CRITERYCOL3']
+
+            Resulting sql sentence >>>
+            UPDATE tblname SET
+            COLS1 = (SELECT COLS1 FROM tblname_temp WHERE tblname_temp.CRITERYCOL1 = tblname.CRITERYCOL1 AND tblname_temp.CRITERYCOL2 = tblname.CRITERYCOL2 AND tblname_temp.CRITERYCOL3 = tblname.CRITERYCOL3),
+            COLS2 = (SELECT COLS2 FROM tblname_temp WHERE tblname_temp.CRITERYCOL1 = tblname.CRITERYCOL1 AND tblname_temp.CRITERYCOL2 = tblname.CRITERYCOL2 AND tblname_temp.CRITERYCOL3 = tblname.CRITERYCOL3)
+            WHERE
+            CRITERYCOL1 IN(SELECT CRITERYCOL1 FROM tblname_temp) AND
+            CRITERYCOL2 IN(SELECT CRITERYCOL2 FROM tblname_temp) AND
+            CRITERYCOL3 IN(SELECT CRITERYCOL3 FROM tblname_temp)
+            <<<
         """
-        En update se crea una tabla temporal(tbl_source) y las columnas se actualizan en la tabla destino (tbl_outcome)
-        """
+
         tblname = parameters['tblname']
         sqldel = ''
 
@@ -259,10 +306,6 @@ class DbDataProcess(object):
 
             sqldel = 'DELETE FROM ' + tblname + ' WHERE ' + tblname + '.' + self.parameters['keyperiod'] + ' = ' + self.month
 
-        #UPDATE tblhis_ventas SET CONTRATO = (SELECT CONTRATO FROM tblhis_ventas_temp WHERE tblhis_ventas_temp.CONTRATO = tblhis_ventas.CONTRATO)
-        #, ACCESSPAQUETE = (SELECT ACCESSPAQUETE FROM tblhis_ventas_temp WHERE tblhis_ventas_temp.CONTRATO = tblhis_ventas.CONTRATO) WHERE CONTRATO IN(SELECT CONTRATO FROM tblhis_ventas_temp)
-
-
         elif parameters['dboperation'] == 'update':
             sql = 'UPDATE ' + tblname + ' SET ' + \
             ', '.join(col + ' = ' + '(SELECT ' + col + ' FROM ' + tblname + '_temp' +' WHERE ' + 
@@ -271,14 +314,25 @@ class DbDataProcess(object):
             ' WHERE ' + 'AND '.join(col2 + ' IN(SELECT ' + col2 + ' FROM ' + tblname + '_temp' + ')' for col2 in
                                     parameters['criterycols'])
 
+        #Read from table, no view.
         elif parameters['dboperation'] == 'read':
             sql = 'SELECT * FROM ' + tblname
 
+        #Read from view taking into account the activation or deactivation period
         elif parameters['dboperation'] == 'read_complex':
             sql = 'SELECT * FROM ' + parameters['view'] + ' WHERE ' + parameters['keyperiod'] + ' = ' + self.month
 
         elif parameters['dboperation'] == 'read_more_periods':
             sql = 'SELECT * FROM ' + parameters['view'] + ' WHERE ' + parameters['keyperiod'] + ' >= ' + self.month
+
+        #Delete temporal table and copy view to that temporal table.
+        elif parameters['dboperation'] == 'create_temp_table_from_view':
+            sql = 'CREATE TABLE ' +  tblname + '_temp' +  ' AS SELECT * FROM ' + parameters['view'];
+            sqldel = 'DROP TABLE ' + tblname + '_temp'
+
+        #Read from temporal table
+        elif parameters['dboperation'] == 'read_complex_temp_table':
+            sql = 'SELECT * FROM ' + tblname + '_temp' + ' WHERE ' + parameters['keyperiod'] + ' = ' + self.month
 
         querys = {'sql': sql, 'sqldel' : sqldel}
 

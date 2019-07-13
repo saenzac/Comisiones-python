@@ -22,17 +22,18 @@ class DataframeCleaner(object):
         """ 
         Permite detectar elementos de subset en panel y autollena. col es la columna adicional que se crea con el autollenado. 
         Si col = newkeycol se renombra newkeycol.
+        panel = powercleaner.fillRows(kpis, panel, keycol, 'METRICA'), #keycol= 'NOMBRES'
         """ 
-        df = panel.copy()
+        panel_df = panel.copy()
         newkeycol = keycol
         if col == newkeycol:
             newkeycol = 'DATOS'
-            df.rename(columns = {keycol:newkeycol}, inplace = True)
+            panel_df.rename(columns = {keycol:newkeycol}, inplace = True)
         
-        df[col] = df[df[newkeycol].isin(subset[col].drop_duplicates().tolist())][newkeycol]
-        df[col] = df[col].ffill()
+        panel_df[col] = panel_df[panel_df[newkeycol].isin(subset[col].drop_duplicates().tolist())][newkeycol]
+        panel_df[col] = panel_df[col].ffill()
         
-        return df
+        return panel_df
 
     def rowsChange(self, logins, panel, loginscol, panelcol):      
         """ Busca el login equivalente en caso de logins no encontrados """
@@ -51,6 +52,7 @@ class DataframeCleaner(object):
 
         return df
 
+    #Devuelve la tabla con los nombres de los kpis de la pestaña Leyenda de los arhcivos de comisiones Pymes y G. Cuentas.
     def kpiCleaner(self, kpis):
 
         # Asegúrate que item este codificado. 1XXX para Kpis, 2XXX para pesos, 3XXX para Limitantes Mínimos y 4XXX para limitantes Máximos
@@ -58,7 +60,7 @@ class DataframeCleaner(object):
         dft = kpis[kpis['ITEM']!='ITEM']
         dft = dft[~dft['ITEM'].isnull()]
 
-        #Filtro de sólo KPIs
+        #Filtro de sólo KPIs [Nombres]
         df = dft[dft['ITEM']<2000]
 
         # Pesos por kpi
@@ -77,14 +79,27 @@ class DataframeCleaner(object):
 
         df = dfi.reset_index(drop=True)
    
-        return df  
-            
-    def detectValues(self, values_detected, data):
+        return df
+        # values_detected: Ejemplo Dataframe  de Entrada
+
+    """ 
         
+        values_detected: Dataframe con los registros que tienen vacío el campo de 'periodo' en el panel 
+                         de cuotas/resultados. Ejemplo de estructura:
+        POSICION                                  | KAM   | METRICA | TYPEOFKPI
+        GERENTE DE NEGOCIOS CARTERA CORPORACIONES | LIMA  | Churn   | objetivos
+        data: Dataframe de cuotas/resultados en donde buscaremos por posición de empleado los registros nulos 
+              de 'values_detected'
+        Return: Devuelve el dataframe de 'values_detected' con una columna adicional que contiene
+                el valor hallado.
+    """
+    def detectValues(self, values_detected, data):
         df = values_detected.copy()
         df[self.periodo] = None
-        
-        # Ingresando resultados a los valores nulos. 
+
+        # Iteramos por cada fila de 'values_detected' y buscamos el valor de la columna
+        # 'POSICION' de 'values_detected' en la columna 'LOGINS' del dataframe data (panel de cuotas/resultados)
+        # Si hay match entonces dicho valor se actualiza en 'values_detected' para luego ser seteado con la funcion self.setValues()
         for i in values_detected.index.values:
             ifiltro = values_detected.ix[i].values[0]
             imetrica = values_detected.ix[i].values[2]
@@ -132,27 +147,24 @@ class DataframeCleaner(object):
 
         return df
     
-    
-    def superMerge(self, subsetcol, panelcol, subset, panel, comisionantes):
-        """ Las posiciones deben ser identicas para hacer el merge"""
-            
-        
-        # Conbinando comisionantes y kpis. Incluyendo Objetivos y Resultados  
-        dfc = comisionantes.merge(subset, on = subsetcol, how = 'left')
+    def superMerge(self, kpiscol, panelcol, kpis, panel, comisionantes):
+        #Merge de DF Comisionates con DF kpis que contiene el nombre de los kpis y con DF Panel que contiene
+        #los valores numericos del formato de cuotas y resultados.
+        #los valores numericos del formato de cuotas y resultados.
+        #EL primer merge se une por 'POSICION' o PUESTO del empleado
+        #y el segundo por 3 campos : 'LOGIN','METRICA' (Nombre de kpi) y 'TYPEOFKPI' (Objetivo o resultado)
+        dfc = comisionantes.merge(kpis, on = kpiscol, how = 'left')
         dfr = dfc.copy()
         dfc['TYPEOFKPI'] = 'objetivos'
         dfr['TYPEOFKPI'] = 'resultados'
+
         df = dfc.append(dfr)
-        
-        # Merging comisionantes y panel. Completando la data por nombre       
+
         df = df.merge(panel, on = [self.keycol, panelcol,'TYPEOFKPI'], how = 'left')
         df.dropna(subset = ['TIPO'], inplace = True)
 
-        # Completando el panel ya que hay kpis que son cuotas por posición. Se completa el typeofkpi.
-        #data.loc[data['TYPEOFKPI'].isnull(),'TYPEOFKPI'] = 'objetivos'
-        
         return df
-        
+
     def wrangler(self, data = None, results = None):
         """ data es objetivos o panel de plataformas """
         
@@ -164,7 +176,9 @@ class DataframeCleaner(object):
         objvalues = 'Obj|obj|Cuota|cuota'
         navalues = 'DIV/0!.*|.*REF.*|,|-|2da|2d%|.'
         new_kpi_superv = 'Ventas Totales'
-                  
+
+        #Ubicamos el panel de objetivos sobre el panel de resultados y
+        #se diferencia si es objetivo o resultado por la columna 'TYPEOFKPI'
         if self.tipo == 'voz':
             objetivos = data.copy()
             resultados = results.copy()
@@ -172,7 +186,8 @@ class DataframeCleaner(object):
             resultados.rename(columns = {'DATOS':self.keycol}, inplace = True)
             objetivos['TYPEOFKPI'] = 'objetivos'
             resultados['TYPEOFKPI'] = 'resultados'
-            df = objetivos.append(resultados)          
+            df = objetivos.append(resultados)
+            #Limpieamos la columna del periodo elegido
             df[self.periodo].replace(navalues, np.NaN, regex=True, inplace=True)
         
         elif self.tipo == 'plataformas':           
@@ -237,49 +252,74 @@ class HistoricalDataFrame(DataFramePreparation):
         
     def prepareCols(self):
         
-        tipo = self.params['tipo']
-        periodo = self.params['periodo']
-        keycol = self.params['keycol']
-        loginseq = self.params['logins']
-        metricasconjuntas = self.params['metricasconjuntas']
-        kpis = self.params['kpis']
-        comisionantes = self.params['comisionantes']
-        cuotas = self.params['cuotas']
-        resultados = self.params['resultados'] 
-        
-        powercleaner = DataframeCleaner(keycol, tipo, periodo)        
-        loginseq.rename(columns = {'LOGIN_EQUIVALENTE' : keycol}, inplace = True)
+        tipo = self.params['tipo'] #Por ejemplo 'Voz'
+        periodo = self.params['periodo'] # Por ejemplo 'ene-18' pero en mayusculas.
+        keycol = self.params['keycol'] #Por ejemplo 'LOGIN'
+        loginseq = self.params['logins'] #Dataframe  archivo de logins equivalentes
+        loginseq.rename(columns={'LOGIN_EQUIVALENTE': keycol}, inplace=True)
+        metricasconjuntas = self.params['metricasconjuntas'] #Dataframe de metricas conjuntas
+        kpis = self.params['kpis'] #Dataframe de pestaña leyendo de los archivos de comisiones Pymes y Grandes Clientes
+        comisionantes = self.params['comisionantes'] #Dataframe de pestaña comisionantes
+        cuotas = self.params['cuotas'] #Dataframe de archivo de 'formato de cuotas'
+        resultados = self.params['resultados'] #Dataframde archivo de 'formato de resultados'
+
+        powercleaner = DataframeCleaner(keycol, tipo, periodo)
+        # * Devuelve la tabla de kpis por nombre de puesto
+        # ITEM | POSICION                                  | METRICA | TIPO
+        # 1102 | GERENTE DE NEGOCIOS CARTERA CORPORACIONES | Ventas  | CAPTURA_1
         kpis = powercleaner.kpiCleaner(kpis)
 
+        # * Carga DF de panel de cuotas y resultados
+        # LOGIN                        | ABR-19   | TYPEOFKPI
+        # Ventas S/                    | nan      | objetivos
+        # DCANALE                      | 21305.0  | objetivos
+        # EJECUTIVO DE DESARROLLO PYME | 40       | objetivos
+        #     ...                      |  ...     |   ...
+        # A.CHONYEN                    | 44.64    | resultados
         panel = powercleaner.wrangler(cuotas, resultados)
  
         if tipo == 'voz':
             area = 'VENTAS DIRECTAS'
         elif tipo == 'plataformas':
             area = 'PLATAFORMAS COMERCIALES'
-        
-        #panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_panel1.csv') #---> Punto de Control
+
+        # * Completa con el nombre del kpi las celdas inferiores subyacentes hasta encontrar otro kpi
+        #   en donde el ciclo vuelve a comenzar.
+        # LOGIN                        | METRICA        | TYPEOFKPI  | ABR-19
+        # Ventas S/                    | Ventas S/      | objetivos  | nan
+        # DCANALE                      | Ventas S/      | objetivos  | 21305.0
+        # EJECUTIVO DE DESARROLLO PYME | Ventas S/      | objetivos  | 40
+        #     ...                      |  ...           |   ...      | ...
+        # A.CHONYEN                    | HC VENDEDORES  | resultados | 44.64
         panel = powercleaner.fillRows(kpis, panel, keycol, 'METRICA')
         
-        #Asegurando el orden de las columnas del panel - Importante para usar el procedimiento rowsChange
+        # Asegurando el orden de las columnas del panel - Importante para usar el procedimiento rowsChange
         panel = panel[[keycol,'METRICA','TYPEOFKPI',periodo]]    
         
         #print(panel.columns)
-        
+
+        #Corrige los logins por los equivalentes
         panel = powercleaner.rowsChange(loginseq, panel, 'LOGIN_REAL', keycol)
-        #panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_panel2.csv') #---> Punto de Control        
+        #panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_panel2.csv') #---> Punto de Control
         
         if tipo == 'plataformas':         
             panel = powercleaner.fillRows(comisionantes, panel, keycol, keycol)
             panel = panel[panel['DATOS'] == panel['METRICA']]
-         
-        #panel = panel.dropna() 
+
         panel.drop_duplicates(subset = [keycol, 'METRICA', 'TYPEOFKPI'], inplace = True)
+
+        # Merge de comisionantes , nombres de kpis y paneles de cuotas/resultados
         planilla = powercleaner.superMerge('POSICIÓN', 'METRICA', kpis, panel, comisionantes)
         #panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla1.csv') #---> Punto de Control  
-              
-        # Detectando las personas que están sin métrica. Completando datos por posición     
+
+        #* Detectando las personas que están sin métrica. Completando datos por posición
+        # Devuelve los registros que estan vacios de la columna 'periodo',
+        # (es decir los LOGINS que no se hallaron en el formato de cuotas/resultados al hacer el superMerge)
+        # Capturamos unicamente las columnas  ['POSICIÓN', 'KAM', 'METRICA', 'TYPEOFKPI'], no tomamos la de LOGIN
+        # POSICION                                  | KAM   | METRICA | TYPEOFKPI
+        # GERENTE DE NEGOCIOS CARTERA CORPORACIONES | LIMA  | Churn   | objetivos
         nullpositions = planilla[planilla[periodo].isnull()][['POSICIÓN', 'KAM', 'METRICA', 'TYPEOFKPI']].drop_duplicates().reset_index(drop=True)
+        #
         valuestoset = powercleaner.detectValues(nullpositions, panel)
         planilla = powercleaner.setValues('POSICIÓN', valuestoset, planilla) 
         #planilla.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla2.csv')
@@ -304,9 +344,9 @@ class HistoricalDataFrame(DataFramePreparation):
         valuestoset = powercleaner.detectValues(metricsconjunt, panel)
         #valuestoset.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ '_valuestoset.csv')     # ---> punto de control
         planilla = powercleaner.setValues(filtro, valuestoset, planilla)
-                        
+
         df = powercleaner.powerPivot(planilla)
-                
+
         # Dejando Logins equivalentes como antes
         loginseq.rename(columns = {keycol : 'LOGIN_EQUIVALENTE'}, inplace = True)
            
