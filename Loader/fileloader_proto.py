@@ -72,7 +72,7 @@ class ReadExcelFile(GenericInputFile):
     #print(self.parameters) # Control
 
     for item in filelist:
-      df0 = pd.read_excel(item, sheet_name=self.parameters['presetsheet'], na_values = self.parameters['navalues'], skiprows = self.parameters['skiprows'], converters = converters)
+      df0 = pd.read_excel(item, sheet_name=self.parameters['presetsheet'][0], na_values = self.parameters['navalues'], skiprows = self.parameters['skiprows'], converters = converters)
       if self.parameters['allcols'] == 1:
         df = df.append(df0, ignore_index=True)
       else:
@@ -122,10 +122,10 @@ class ReadXlsxFile(GenericInputFile):
       print('Archivo:', item)
       workbook = pd.ExcelFile(item, encoding='utf-8')
       #workbook = pd.ExcelFile(item)
-      if self.parameters['presetsheet'] == '':
+      if len(self.parameters['presetsheet']) == 0:
         sheets = workbook.sheet_names
       else:
-        sheets = [self.parameters['presetsheet']]
+          sheets = self.parameters['presetsheet']
 
       for sheet in sheets:
 
@@ -285,7 +285,7 @@ class SectionObj(object):
         for item in self.parser.options(self.section): #
             if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine' or item=='skip_cols_historical' or item=='take_many_months' or item=='no_mayus_colsname':
                 l2.append(self.parser.getint(self.section,item)) # si la opcion es un entero
-            elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols', 'colsdatetype']: # si en myconfig.ini la opcion es una lista
+            elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols', 'colsdatetype','presetsheet']: # si en myconfig.ini la opcion es una lista
                 l2.append(ast.literal_eval(self.parser.get(self.section,item)))
             else:
                 l2.append(self.parser.get(self.section,item))
