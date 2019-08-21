@@ -122,7 +122,7 @@ class ComputeSumSSAA(ComputeProcess):
         b = df.columns.get_level_values(1)
         c = [m + str(n) for m,n in zip(b,a)]
         df.columns = c
-        df.rename # ver para que sirve
+        #df.rename # ver para que sirve
         #print(df.columns) # Test
         df.rename(columns = {'sumACCESSREAL' : 'ACCESSLICENCIA'}, inplace = True)
         df['ACCESSLICENCIA'] = df['ACCESSLICENCIA'].round(2)
