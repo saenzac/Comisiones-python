@@ -95,6 +95,10 @@ class DbDataProcess(object):
     def display(self, paramstable):
         print('Los registros de la tabla %s es %s registros %s ' % ((paramstable['section'], paramstable['lenght'], paramstable['comment'])))  
 
+    """
+       Crea una diccionario con los parametros de la seccion respectiva leidos del archivo de configuracion.
+       En este caso el archivo de configuracion correspondiente a la base de datos: mydbconfig.ini
+    """
     def configParameters(self): # incluía parser
         
         l2 = []
@@ -113,28 +117,35 @@ class DbDataProcess(object):
         self.parameters['dbpath'] = self.dbpath
         self.parameters['dbname'] = self.dbname
 
-    #Ejecucion de alguna operacion sql requerida como paso previo a la carga de una tabla  a un Dataframe.
+    """
+      Ejecucion de alguna operacion sql requerida como paso previo a la carga de una tabla  a un Dataframe.
+    """
     def pre_loadData(self, section):
-
         self.section = section
         self.configParameters()
         if section in ['Reversiones']:
+            #Crea una tabla temporal a partir de la vista llamada "Reversiones"
+            #Esto debido a que 'Pandas' toma mucho tiempo en el procesamiento cuando se lee directamente de la vista.
             self.parameters['dboperation'] = 'create_temp_table_from_view'
 
         querys = self.sqlmaker(self.parameters)
+
+        #Guardamos las setencias sql en el diccionario de parametros para su posible uso posterior.
         self.parameters['sql'] = querys['sql']
         self.parameters['sqldel'] = querys['sqldel']
 
+        #Ejecutamos las setencias definidas en self.parameters['sqldel'] y self.parameters['sql']
         dbobj = DbSqLiteOperator(self.parameters)
         dbobj.openDb()
         dbobj.customQueryTbl(self.parameters['sqldel'])
         dbobj.customQueryTbl(self.parameters['sql'])
         dbobj.closeDb()
 
-    #Carga data de una tabla hacia un dataframe
-    #Si la ejecucion previa de una sentencia sql es requerida usar primero la funcion self.pre_loadData()
+    """
+      Carga data de una tabla hacia un dataframe
+      Si la ejecucion previa de una sentencia sql es requerida usar primero la funcion self.pre_loadData()
+    """
     def loadData(self, section):
-        
         self.section = section
         self.configParameters()
         if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz','View_Deacs_SSAA']:
@@ -149,13 +160,14 @@ class DbDataProcess(object):
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         elif section in ['Reversiones']:
+            #Leemos de la tabla temporal creada en la funcion pre_loadData()
             self.parameters['dboperation'] = 'read_complex_temp_table'
             ending = ['desactivacion']
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         else:
             self.parameters['dboperation'] = 'read'
-        
+
         querys = self.sqlmaker(self.parameters)
         self.parameters['sql'] = querys['sql']
         self.parameters['sqldel'] = querys['sqldel']
@@ -173,7 +185,7 @@ class DbDataProcess(object):
         self.display(paramstable)
         
         return df
-        
+
     def dbOperation(self, operation, section, data = None):    
         self.section = section
         self.configParameters()
@@ -215,12 +227,15 @@ class DbDataProcess(object):
                 rules = self.loadData('tblReversionesRules')      
                 rules = rules[rules['STATE_RULE'] != 'inactive']
                 rules.drop(self.parameters['dropcols'], axis = 1, inplace =True)
+
                 #Copiamos la vista Reversiones a una tabla temporal para leer la data desde dicho origen.
                 #Cuando se lee directamente de la vista el performance es muy pobre (demora casi 1 hora)
                 self.pre_loadData('Reversiones')
-                #Leemos la data desde la tabla temporal creada.
+                #dataframe de la tabla temporal creada en pre_loadData()
                 data = self.loadData('Reversiones')
                 self.parameters['dboperation'] = operation # retomando el proceso update
+
+
                 computerev = dc.ComputeReversiones(self.parameters, rules)
                 df = computerev.prepareDf(data)
             elif section == 'Unitarios':

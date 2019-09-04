@@ -30,19 +30,25 @@ class ComputeProcess(object):
     def prepareDf(self):
         pass
 
+    """
+    xx
+    data : dataframe of DB temporal table of Reversiones
+    params: Nombres de columna del dataframe que 
+    params = {'colsum'       : 'DEAC',
+              'colsecuence'  : ['TELEFONO', 'CODIGO_PADRE', 'VENDEDOR_ACTIVACION'],
+              'colfilter'    : 'VENDEDOR_ACTIVACION',
+              'sortlist'     : ['VENDEDOR_ACTIVACION', 'DEAC', 'TELEFONO'],
+              'booleanlist'  : [True, False, True]}
+    """
     def neteomanager(self, params, data):
-        """Sólo se procesa la data que debe procesarse. En caso ser paquetes se agrega la columna GROSS"""
-        
+        #Sólo se procesa la data que debe procesarse. En caso ser paquetes se agrega la columna GROSS
         df = data.copy()
-        ###paramsdeac = {'colsum' : 'DEAC', 'colsecuence' : ['TELEFONO', 'CODIGO_PADRE', 'VENDEDOR_ACTIVACION'],
-        ###          'colfilter' : 'VENDEDOR_ACTIVACION', 'sortlist' : ['VENDEDOR_ACTIVACION', 'DEAC', 'TELEFONO'],
-        ###          'booleanlist' : [True, False, True]}
+
         # Si la columna GROSS no está creada en los paquetes. Se crea.
         colsum = params['colsum']
         colfilter = params['colfilter']
         if colsum == '':
             grosslist = ['ADDS', 'NEWS', 'DEOF', 'REAC']
-            #print(colsum)
             colsum = 'GROSS' # Calcular el GROSS.
             df[colsum] = df['ESTADO'].apply(lambda x : 1 if (x == grosslist[0] or x == grosslist[1] or x == grosslist[2] or x == grosslist[3]) else -1)
 
@@ -52,10 +58,14 @@ class ComputeProcess(object):
         # Agregar columnas adicionales : codigo_padre, neteo_telefono, neteo_codigo_padre, neteo_vendedor
         df['CODIGO_PADRE'] = df['CODIGO'].apply(lambda x: x[:len(x)-13] if x[0]!='1' else x)
         prefix = 'NETEO_'
-     
+
         for col in params['colsecuence']:
-            # Se crea la serie de columna 'colsum' y luego se agrupa por 'col'y se suma en 'colsum'
-            seriesum = df.groupby(col)[colsum].sum()
+            # Agrupamos con columna  indice "col" y columna de agrupación colsum.
+            # Notar que sin especificar [colsum] la expresión df.groupby(col) retorna un objeto de tipo DataFrameGroupByes
+            # el cual al aplicarle sum() devuelve un dataframe con todas sus columnas agrupadas.
+            # Al especificar [colsum]  se devuelve un SeriesGroupBy y por lo tanto 'seriesum' es una serie de 2 columnas: col(no agrupada) y colsum(agrupada).
+            seriesgroup = df.groupby(col)[colsum]
+            seriesum = seriesgroup.sum()
             #Se crea un dataframe a partir de la serie anterior y se resetea el indice
             dfsum = pd.DataFrame(seriesum).reset_index()
             #Se cambia el nombre de 'colsum' a uno que identifica la
@@ -184,42 +194,59 @@ class ComputeGrossComision(ComputeProcess):
 
         return df
 
-
-class ComputeReversiones(ComputeProcess):
-    """
+"""
     Description for class
-
-      :ivar var1: initial value: par1
-      :ivar var2: initial value: par2
-    """
+        Clase que se encarga de calcular las reversiones de Voz.
+        No calcula reversiones VAS.
+"""
+class ComputeReversiones(ComputeProcess):
+    #Inicializador de la clase
     def __init__(self, params, rules):
+        # Dataframe de la tabla tblsopreversiones_rules
         self.rules = rules
+        # Diccionario de parametros de la clase DbDataProcess.
+        # Contiene parametros leidos de archivo *.ini y creados en la ejecución.
         self.params = params    
-    
+
+    #Ejecuta el calculo de las reversiones. El resultado se da en el dataframe "df"  salida de la función.
     def prepareDf(self, data):
-        
+
+        #data: dataframe de la tabla temporal  "reversiones_temp" de la BD, la cual fue creada a partir de la tabla
+        #      principal "reversiones". Creada en datahandledatabase->DbDataProcess.pre_loadData()
         df = data.copy()
-              
-        paramsdeac = {'colsum' : 'DEAC', 'colsecuence' : ['TELEFONO', 'CODIGO_PADRE', 'VENDEDOR_ACTIVACION'], 
-                  'colfilter' : 'VENDEDOR_ACTIVACION', 'sortlist' : ['VENDEDOR_ACTIVACION', 'DEAC', 'TELEFONO'], 
-                  'booleanlist' : [True, False, True]}
-              
+
+        paramsdeac = {'colsum'       : 'DEAC',
+                      'colsecuence'  : ['TELEFONO', 'CODIGO_PADRE', 'VENDEDOR_ACTIVACION'],
+                      'colfilter'    : 'VENDEDOR_ACTIVACION',
+                      'sortlist'     : ['VENDEDOR_ACTIVACION', 'DEAC', 'TELEFONO'],
+                      'booleanlist'  : [True, False, True]}
+
         # Aplicando Neteos y Filtrando sólo contratos que son deac. Tambien las posiciones que tienen reversiones
         df = self.neteomanager(paramsdeac, df)
 
-        df = df[df['POSICION_EMPL'].notnull()] # logins en base de datos de lo contario se eliminan puestos
+        # Se descartan "contratos" vendidos por personas que no figuran en la tabla de empleados.
+        df = df[df['POSICION_EMPL'].notnull()]
 
-        
+        #
         positions = self.rules.drop_duplicates(['POSICION_EMPL'], keep='last')['POSICION_EMPL']
         df = df[df['POSICION_EMPL'].isin(positions)]  
-              
+
         df['ACCESS_TOTAL'] = df['ACCESS'] #+ df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']
         df['FECHA_PROCESO'] = pd.to_datetime(df['FECHA_PROCESO'], dayfirst = True, errors='coerce')
         df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, errors='coerce')
         df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario     
-        df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x : 'Entre 0 y 90 dias' 
+        #"""
+        df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x : 'Entre 0 y 90 dias'
                                                                       if x < 91 else ('Entre 91 y 180 dias' 
                                                                                       if x < 181 else 'Mayor a 180 dias' ))
+        #"""
+
+        """
+        df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x: 'Entre 0 y 240 dias'
+        if x < 241 else ('Entre 241 y 360 dias'
+                        if x < 361 else 'Mayor a 360 dias'))
+        """
+
         #date1 = pd.Timestamp('2017-03-01')
         #date2 = pd.Timestamp('2017-09-01')
         #df['STATUS_APLICACION'] = df['FEC_ACTIV'].apply(lambda x : 'antes de Septiembre 2017' if x < date2 else 'despues de Septiembre 2017')        
@@ -241,7 +268,7 @@ class ComputeReversiones(ComputeProcess):
         ### Calcular la reversión unitaria en excel tal como se indica en 
         ### Tener en cuenta la columna penalidad. Si 0 se revierte, si tiene 100% de penalidad no le corresponde reversion, Si tiene 25% de penalidad sobre aplicarle
         ### el 75% de la reversión
-        
+
         #df.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
         #self.rules.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
         logging.debug("Aca escribia los archivos de reversiones brutas y reversiones rules")
