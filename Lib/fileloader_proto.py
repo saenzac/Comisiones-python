@@ -6,6 +6,7 @@ Created on Sun Aug 13 16:00:01 2017
 @author: Scarebyte
 
 """
+import logging
 import abc
 import pandas as pd
 import os
@@ -15,8 +16,11 @@ from configparser import ConfigParser
 import numpy as np
 import codecs
 import ast
-from Loader import datapreparation as dp
+import ecomis
+#from Loader import datapreparation as dp
 from datetime import datetime
+
+logger = logging.getLogger("juplogger")
 
 class GenericInputFile(object):
   __metaclass__ = abc.ABCMeta
@@ -437,7 +441,7 @@ class LoadFileProcess(object):
     return df
 
   def prepareHistoricalFiles(self, params):
-    dfobjhis = dp.HistoricalDataFrame(params)
+    dfobjhis = ecomis.HistoricalDataFrame(params)
     df = dfobjhis.prepareCols()
     return df
 
@@ -451,7 +455,7 @@ class LoadFileProcess(object):
     criteria = parameters['criteria']
 
     for section in frames.keys():
-      otherobj = dp.OtherPlainDataFrame(criteria[section])
+      otherobj = ecomis.OtherPlainDataFrame(criteria[section])
       df = otherobj.prepareCols(section, frames[section], periodo)
       listofdfs[section] = df
 

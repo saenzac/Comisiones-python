@@ -11,16 +11,7 @@ import numpy as np
 import logging
 
 # Initializing the logger instance
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-
-# Adding console handler with custom format to the logger
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-fmt = logging.Formatter('%(levelname)s:    %(message)s')
-ch.setFormatter(fmt)
-logger.addHandler(ch)
+logger = logging.getLogger("juplogger")
 
 class ComputeProcess(object):
     

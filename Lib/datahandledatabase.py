@@ -11,11 +11,12 @@ import sqlite3
 import pandas as pd
 import posixpath
 from pandas import Series, DataFrame
-from Loader import datapreparation as dp
-from Loader import datacompute as dc
+#from Loader import datapreparation as dp
+#from Loader import datacompute as dc
+import ecomis
 import logging
 
-logger = logging.getLogger("")
+logger = logging.getLogger("juplogger")
 
 class DbGenericOperator(object):
     __metaclass__ = abc.ABCMeta
@@ -192,23 +193,23 @@ class DbDataProcess(object):
         self.parameters['dboperation'] = operation       
 
         if operation == 'insert':
-            dataprepare = dp.PlainDataFrame(self.parameters)      
+            dataprepare = ecomis.PlainDataFrame(self.parameters)
             keyperiod, df = dataprepare.prepareCols(data)
             self.parameters['cols'] = df.columns.tolist()
             self.parameters['keyperiod'] = keyperiod
         elif operation == 'update':
             if section == 'Bolsas':
-                computebol = dc.ComputeBolsas()
+                computebol = ecomis.ComputeBolsas()
                 df = computebol.prepareDf(data)
 
             elif section == 'SumVentaSSAA':
-                compute = dc.ComputeSumSSAA()
+                compute = ecomis.ComputeSumSSAA()
                 df = compute.prepareDf(data)
 
             elif section == 'Paquetes':             
                 data = self.loadData('Paquetes')
                 self.parameters['dboperation'] = operation # retomando el proceso update
-                computepaq = dc.ComputePaquetes()
+                computepaq = ecomis.ComputePaquetes()
                 df = computepaq.prepareDf(data)
 
             elif section == 'Gross_Comision':
@@ -219,7 +220,7 @@ class DbDataProcess(object):
                 
                 data = self.loadData('Gross_Comision')
                 self.parameters['dboperation'] = operation # retomando el proceso update
-                computegross = dc.ComputeGrossComision(self.parameters, rules)
+                computegross = ecomis.ComputeGrossComision(self.parameters, rules)
  
                 df = computegross.prepareDf(data)
 
@@ -236,7 +237,7 @@ class DbDataProcess(object):
                 self.parameters['dboperation'] = operation # retomando el proceso update
 
 
-                computerev = dc.ComputeReversiones(self.parameters, rules)
+                computerev = ecomis.ComputeReversiones(self.parameters, rules)
                 df = computerev.prepareDf(data)
             elif section == 'Unitarios':
                 df = data[data['COMISION_UNITARIA'] != 0]                
