@@ -17,9 +17,6 @@ import codecs
 import ast
 from Loader import datapreparation as dp
 from datetime import datetime
-import logging
-
-logger = logging.getLogger("")
 
 class GenericInputFile(object):
   __metaclass__ = abc.ABCMeta
@@ -29,7 +26,7 @@ class GenericInputFile(object):
     pass
 
   def display(self, paramsfile):
-    print('El tamaño de %s es %s registros' % (paramsfile['section'], paramsfile['lenght']))
+      logger.info('El tamaño de %s es %s registros' % (paramsfile['section'], paramsfile['lenght']))
 
 class ReadTxtFile(GenericInputFile):
   #Importación de archivo txts que tengan mismo nombre clave. Puede unir dos archivos de nombre similar y
@@ -359,7 +356,10 @@ class SectionObj(object):
         self.parameters[name] = value
 
     def getParameter(self, name):
-        return self.parameters[name]
+        if name in self.parameters.keys():
+            return self.parameters[name]
+        else:
+            return ["Key not found"]
 
     def getParser(self):
         return self.parser

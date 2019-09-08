@@ -17,9 +17,7 @@ import ast
 from Loader import datapreparation as dp
 from datetime import datetime
 import logging
-
-logger = logging.getLogger("")
-
+logger = logging.getLogger("juplogger")
 
 class GenericInputFile(object):
   __metaclass__ = abc.ABCMeta
