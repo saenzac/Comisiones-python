@@ -6,7 +6,7 @@ Subpackages
 
 .. toctree::
 
-    .Loader
+    .Lib
     .Scripts
 
 Module contents

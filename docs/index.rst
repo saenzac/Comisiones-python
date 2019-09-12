@@ -9,7 +9,7 @@ Welcome to comisiones-python's documentation!
 
 .. autosummary::
      :toctree: _autosummary
-     Loader
+     Lib
 
 
 Indices and tables

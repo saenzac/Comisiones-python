@@ -1,7 +1,7 @@
-Loader
-======
+Lib
+===
 
-.. automodule:: Loader
+.. automodule:: Lib
 
    
    

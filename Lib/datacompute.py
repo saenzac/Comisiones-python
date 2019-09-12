@@ -139,7 +139,7 @@ class ComputePaquetes(ComputeProcess):
                   'booleanlist' : [True, False, True]}
 
         df = data.copy() # sólo para tener una copia de data antes del neteo
-        
+
         # haciendo que ganadoporvoz y vendedor sea una sola columna
         ## nullganadoporvoz = df[df['GANADOPORVOZ'].isnull()].index
         ##df.loc[nullganadoporvoz, 'GANADOPORVOZ'] = df.loc[nullganadoporvoz,'VENDEDOR']

@@ -94,7 +94,7 @@ class DbDataProcess(object):
         self.dbpath = None
 
     def display(self, paramstable):
-        print('Los registros de la tabla %s es %s registros %s ' % ((paramstable['section'], paramstable['lenght'], paramstable['comment'])))  
+        logger.info('Los registros de la tabla %s es %s registros %s ' % ((paramstable['section'], paramstable['lenght'], paramstable['comment'])))
 
     """
        Crea una diccionario con los parametros de la seccion respectiva leidos del archivo de configuracion.

@@ -4,67 +4,58 @@ Loader package
 Submodules
 ----------
 
-Loader.datacompute module
+Lib.datacompute module
 -------------------------
 
-.. automodule:: Loader.datacompute
+.. automodule:: Lib.datacompute
     :members:
     :undoc-members:
     :show-inheritance:
 
-Loader.datahandledatabase module
+Lib.datahandledatabase module
 --------------------------------
 
-.. automodule:: Loader.datahandledatabase
+.. automodule:: Lib.datahandledatabase
     :members:
     :undoc-members:
     :show-inheritance:
 
-Loader.datapreparation module
+Lib.datapreparation module
 -----------------------------
 
-.. automodule:: Loader.datapreparation
+.. automodule:: Lib.datapreparation
     :members:
     :undoc-members:
     :show-inheritance:
 
-Loader.datavalidator module
+Lib.datavalidator module
 ---------------------------
 
-.. automodule:: Loader.datavalidator
+.. automodule:: Lib.datavalidator
     :members:
     :undoc-members:
     :show-inheritance:
 
-Loader.dfutils module
+Lib.dfutils module
 ---------------------
 
-.. automodule:: Loader.dfutils
+.. automodule:: Lib.dfutils
     :members:
     :undoc-members:
     :show-inheritance:
 
-Loader.fileloader module
+Lib.fileloaderproto module
 ------------------------
 
-.. automodule:: Loader.fileloader
+.. automodule:: Lib.fileloaderproto
     :members:
     :undoc-members:
     :show-inheritance:
-
-Loader.globals module
----------------------
-
-.. automodule:: Loader.globals
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------
 
-.. automodule:: Loader
+.. automodule:: Lib
     :members:
     :undoc-members:
     :show-inheritance:
