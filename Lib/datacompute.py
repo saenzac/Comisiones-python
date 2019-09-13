@@ -80,13 +80,13 @@ class ComputeProcess(object):
         posvalues.rename(columns = {'CORRELATIVO' : 'ITEM'}, inplace = True)
         posvalues.reset_index(inplace = True)
         df = df.merge(posvalues, on = colfilter)
-        
+
         # Si no hay FCHURN o DEOF puede lanzar un error
         df['STATE_FILTER'] = (df['CORRELATIVO'] - df['ITEM'] - df[prefix + colfilter].abs()).apply(lambda x : 1 if x < 0 else 0)
         df = df[df['STATE_FILTER'] > 0]           
 
         return df
-        
+
 class ComputeBolsas(ComputeProcess):
         
     def prepareDf(self, data):
@@ -107,7 +107,7 @@ class ComputeBolsas(ComputeProcess):
         df = df[df['ACCESSBOLSA'] != 0]
         df['ACCESSBOLSA'] = df['ACCESSBOLSA'].round(2)
         df = df[['CONTRATO', 'ACCESSBOLSA']]
-        
+
         return df
         
 class ComputeSumSSAA(ComputeProcess):

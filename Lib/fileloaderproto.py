@@ -376,6 +376,10 @@ class SectionObj(object):
     def getParser(self):
         return self.parser
 
+    def getMonth(self):
+        #return self.parameters['periodo']
+        return self.month
+
 '''
 Clase que carga un Dataframe a partir de un archivo Excel
 Argumentos de entrada:
