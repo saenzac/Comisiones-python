@@ -70,7 +70,7 @@ class DataframeCleaner(object):
         dfi = pd.DataFrame()
 
         for column in columnnames:
-            dfslice = df[['ITEM','POSICIÓN',column]]
+            dfslice = df[['ITEM','ESQUEMA',column]]
             dftemp = dfslice.dropna()
             dftemp = dftemp.rename(columns={column:'METRICA'})
             dftemp['TIPO'] = column
@@ -225,15 +225,15 @@ class DataframeCleaner(object):
         #df.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+'kpis.csv') # Exportando Kpis
         #pivot = df.pivot_table(index = ['item', 'gerencia2','zona', 'posición',self.keycol], columns=['typeofkpi','nivel_caja','tipo'], values = self.periodo, aggfunc='first')
         #pivot = df.pivot_table(index = ['ITEM', 'GERENCIA2','ZONA', 'DEPARTAMENTO', 'POSICIÓN',self.keycol], columns=['TYPEOFKPI','NIVEL_CAJA','TIPO'], values = self.periodo, aggfunc='first')
-        pivot = df.pivot_table(index = ['ITEM', 'GERENCIA2','ZONA', 'DEPARTAMENTO', 'KAM', 'POSICIÓN',self.keycol], columns=['TYPEOFKPI','NIVEL_CAJA','TIPO'], values = self.periodo, aggfunc='first')        
+        pivot = df.pivot_table(index = ['ITEM', 'GERENCIA2','ZONA', 'DEPARTAMENTO', 'KAM', 'ESQUEMA',self.keycol], columns=['TYPEOFKPI','NIVEL_CAJA','TIPO'], values = self.periodo, aggfunc='first')
         return pivot
         
     def getSupervisor(self, canal, subpanel):
         
-        df = self.metricasconj[self.metricasconj['area'] == canal].merge(subpanel, on = ['POSICIÓN', 'METRICA','TYPEOFKPI'], how = 'left')   
+        df = self.metricasconj[self.metricasconj['area'] == canal].merge(subpanel, on = ['ESQUEMA', 'METRICA','TYPEOFKPI'], how = 'left')
     
         # Reordenando columnas
-        df = df[['NOMBRES', 'METRICA', 'TYPEOFKPI', 'POSICIÓN', 'KAM']]
+        df = df[['NOMBRES', 'METRICA', 'TYPEOFKPI', 'ESQUEMA', 'KAM']]
         return df
 
 class DataFramePreparation(object):
@@ -308,7 +308,7 @@ class HistoricalDataFrame(DataFramePreparation):
         panel.drop_duplicates(subset = [keycol, 'METRICA', 'TYPEOFKPI'], inplace = True)
 
         # Merge de comisionantes , nombres de kpis y paneles de cuotas/resultados
-        planilla = powercleaner.superMerge('POSICIÓN', 'METRICA', kpis, panel, comisionantes)
+        planilla = powercleaner.superMerge('ESQUEMA', 'METRICA', kpis, panel, comisionantes)
         #panel.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla1.csv') #---> Punto de Control  
 
         #* Detectando las personas que están sin métrica. Completando datos por posición
@@ -317,14 +317,14 @@ class HistoricalDataFrame(DataFramePreparation):
         # Capturamos unicamente las columnas  ['POSICIÓN', 'KAM', 'METRICA', 'TYPEOFKPI'], no tomamos la de LOGIN
         # POSICION                                  | KAM   | METRICA | TYPEOFKPI
         # GERENTE DE NEGOCIOS CARTERA CORPORACIONES | LIMA  | Churn   | objetivos
-        nullpositions = planilla[planilla[periodo].isnull()][['POSICIÓN', 'KAM', 'METRICA', 'TYPEOFKPI']].drop_duplicates().reset_index(drop=True)
+        nullpositions = planilla[planilla[periodo].isnull()][['ESQUEMA', 'KAM', 'METRICA', 'TYPEOFKPI']].drop_duplicates().reset_index(drop=True)
         #
         valuestoset = powercleaner.detectValues(nullpositions, panel)
-        planilla = powercleaner.setValues('POSICIÓN', valuestoset, planilla) 
+        planilla = powercleaner.setValues('ESQUEMA', valuestoset, planilla)
         #planilla.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/' + '_planilla2.csv')
         
         # Detectando las personas que están sin métrica.Llenando valores del supervisor al comisionante       
-        nullrows = planilla[planilla[periodo].isnull()][['KAM', 'POSICIÓN', 'METRICA', 'TYPEOFKPI']].drop_duplicates().reset_index(drop=True)
+        nullrows = planilla[planilla[periodo].isnull()][['KAM', 'ESQUEMA', 'METRICA', 'TYPEOFKPI']].drop_duplicates().reset_index(drop=True)
         metricasconjuntas = metricasconjuntas[(metricasconjuntas['AREA']== area) & (metricasconjuntas['STATUS']=='Activo')]
         #metricasconjuntas.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ '_metricas_conjuntas.csv')
         listipofiltro = metricasconjuntas['VARIABLE'].drop_duplicates().tolist()
@@ -348,8 +348,17 @@ class HistoricalDataFrame(DataFramePreparation):
 
         # Dejando Logins equivalentes como antes
         loginseq.rename(columns = {keycol : 'LOGIN_EQUIVALENTE'}, inplace = True)
-           
-        return df
+        # Convertimos el multilevel pivot a plain/flat.
+        flattened = pd.DataFrame(df.to_records())
+        if tipo == 'voz':
+            logins = comisionantes[['LOGIN']]
+            dfc = logins.merge(flattened, on="LOGIN", how='left')
+        else:
+            nombres = comisionantes[['NOMBRES']]
+            # hacemos merge del pivot aplanado con los nombres del archivo de comisiones, para mantener el orden.
+            dfc = nombres.merge(flattened, on="NOMBRES", how='left')
+
+        return dfc
     
         
 class PlainDataFrame(DataFramePreparation):

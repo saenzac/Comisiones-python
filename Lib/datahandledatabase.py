@@ -192,7 +192,7 @@ class DbDataProcess(object):
         self.configParameters()
         self.parameters['dboperation'] = operation       
 
-        if operation == 'insert':
+        if operation == 'insert' or operation == 'insertwodeletion':
             dataprepare = ecomis.PlainDataFrame(self.parameters)
             keyperiod, df = dataprepare.prepareCols(data)
             self.parameters['cols'] = df.columns.tolist()
@@ -263,7 +263,11 @@ class DbDataProcess(object):
                
             dbobj.deleteTbl(querys['sqldel'])
             dbobj.writeTbl(querys['sql'], tuplas)
-
+        elif operation == 'insertwodeletion':
+            comment = 'insertados'
+             # Generando los argumentos a insertar
+            tuplas = [tuple(x) for x in df.values]
+            dbobj.writeTbl(querys['sql'], tuplas)
         elif operation == 'update':
             comment = 'actualizados'
             df[self.parameters['cols']].to_sql(self.parameters['tblname'] + '_temp', dbobj.conn, if_exists='replace', index=False)
@@ -321,6 +325,11 @@ class DbDataProcess(object):
             ' VALUES ' + '(' + ', '.join('?' for col in parameters['cols']) +')'
 
             sqldel = 'DELETE FROM ' + tblname + ' WHERE ' + tblname + '.' + self.parameters['keyperiod'] + ' = ' + self.month
+
+        elif parameters['dboperation'] == 'insertwodeletion':
+            sql = 'INSERT INTO ' + tblname + ' (' + ', '.join(col for col in parameters['cols']) + ')' + \
+            ' VALUES ' + '(' + ', '.join('?' for col in parameters['cols']) +')'
+            sqldel = ''
 
         elif parameters['dboperation'] == 'update':
             sql = 'UPDATE ' + tblname + ' SET ' + \
