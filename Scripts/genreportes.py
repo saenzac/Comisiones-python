@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Script que lee la plantilla de reporte donde cada fila representa un reporte a ser creado.
 Entonces cada fila se representa por un objeto que es instanciado de acuerdo a las propiedades de un reporte.
@@ -22,12 +24,13 @@ col_ref_num: numero de columna en los archivos de origen (iniciando por izquierd
 """
 
 class ReportConfigItem(object):
-  def __init__(self, scope, id_file_origin, dest_file, scope_column_id):
+  def __init__(self, scope, id_file_origin, dest_file, scope_column_id, canal_leyenda):
     self.scope = scope
     self.id_file_origin =  int(id_file_origin)
     self.dest_file = dest_file
     self.scope_column_id = int(scope_column_id)
     self.comis_file_item = None
+    self.canal_leyenda = canal_leyenda
   def getFileId(self):
     return self.id_file_origin
   def getDestFile(self):
@@ -40,6 +43,10 @@ class ReportConfigItem(object):
     return self.scope_column_id
   def getScope(self):
     return self.scope
+  def getCanalLeyenda(self):
+    return self.canal_leyenda 
+  def getDestFileBasename(self):
+    return posixpath.basename(self.dest_file)
 
 #Class that represent the file container
 class ReportFileContainer(object):
@@ -66,6 +73,7 @@ class ReportConfigFile(object):
     self.comis_file_collection = comis_file_collection
     self.datadir = self.section.getParameter("datadir")[0]
     self.report_items = []
+    self.df = None
   def loadDf(self):
     self.df = self.loader.loadFile()
     self.df = self.df[self.df['GENFLAG']==1]
@@ -76,7 +84,8 @@ class ReportConfigFile(object):
       fileid_ = int(row["FILEID"])
       destfile_ = posixpath.join(self.datadir,row["NOMBRE_ARCHIVO_DESTINO"])
       scope_col_id_ = int(row["SCOPE_COLUMN_ID"])
-      report_item = ReportConfigItem(scope_, fileid_, destfile_, scope_col_id_)
+      canal_leyenda = row["CANAL_LEYENDA"]
+      report_item = ReportConfigItem(scope_, fileid_, destfile_, scope_col_id_,canal_leyenda)
       comis_file_ = self.comis_file_collection.getItemById(fileid_)
       report_item.setComisFileItem(comis_file_)
       self.report_items.append(report_item)
@@ -86,6 +95,8 @@ class ReportConfigFile(object):
     return file_ids
   def getItems(self):
     return self.report_items
+  def getLenItems(self):
+    return len(self.report_items)
 
 """Clase que representa el archivo de comisiones desde el cual se construira un reporte
 """
@@ -96,9 +107,14 @@ class comisionesFileItem(object):
     self.section_name = section_name
     self.inifile = inifile
     self.filename = self.genFilename()
-    self.file = None
+    self.xw_file_link = None
     self.pandas_excel_file = None
     self.report_sheets = []
+    self.dfs = {}
+  def addDFSheetByName(self, df, name):
+    self.dfs[name] = df
+  def getDFSheetByName(self, name):
+    return self.dfs[name]
   def genFilename(self):
     section_ = ecomis.SectionObj(self.inifile, self.section_name, period)
     return (section_.getFileList())[0]
@@ -110,14 +126,16 @@ class comisionesFileItem(object):
     self.report_sheets.append(sheet)
   def getReportSheets(self):
     return self.report_sheets
-  def setFile(self, f):
-    self.file = f
+  def setXWFileLink(self, f):
+    self.xw_file_link = f
   def setPandasExcelFile(self, f):
     self.pandas_excel_file = f
   def getPandasExcelFile(self):
     return self.pandas_excel_file
   def getXWFileLink(self):
-    return self.file
+    return self.xw_file_link
+  def getSectionName(self):
+    return self.section_name
   
 
 class comisionesFileCollection(object):
@@ -169,28 +187,31 @@ class reportSheet(object):
     return (self.data_start.r(), self.data_start.c())
   def getDataStartCell(self):
     return self.data_start
-  def getSheetName(self):
+  def getName(self):
     return self.name
 
 
 
 logger = logging.getLogger("juplogger")
-handler = ecomis.LogViewver()
+#handler = ecomis.LogViewver()
+handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 logger.propagate = False
+
 
 # Variables globales
 inifile = ecomis.ReadIniFile(mercado="empresas")
 period = '201908'
 
 # Configure the sheet objects
-s1 = reportSheet("Comisionantes", sheetCell(1,1), sheetCell(3,140), sheetCell(3,1))
-s2 = reportSheet("Activaciones", sheetCell(1,1), sheetCell(1,100), sheetCell(1,1))
-s3 = reportSheet("Ajustes", sheetCell(1,1), sheetCell(1,10), sheetCell(1,1))
-s4 = reportSheet("Reversiones", sheetCell(1,1), sheetCell(1,42), sheetCell(1,1))
-s5 = reportSheet("Activaciones VAS", sheetCell(1,1), sheetCell(1,31), sheetCell(1,1))
-s6 = reportSheet("VPN", sheetCell(1,1), sheetCell(1,45), sheetCell(1,1))
+s1 = reportSheet("Comisionantes", sheetCell(1,1), sheetCell(3,140), sheetCell(4,1))
+s2 = reportSheet("Activaciones", sheetCell(1,1), sheetCell(1,100), sheetCell(2,1))
+s3 = reportSheet("Ajustes", sheetCell(1,1), sheetCell(1,10), sheetCell(2,1))
+s4 = reportSheet("Reversiones", sheetCell(1,1), sheetCell(1,42), sheetCell(2,1))
+s5 = reportSheet("Activaciones VAS", sheetCell(1,1), sheetCell(1,31), sheetCell(2,1))
+s6 = reportSheet("VPN", sheetCell(1,1), sheetCell(1,45), sheetCell(2,1))
+s7 = reportSheet("Leyenda", sheetCell(1,1), sheetCell(3,22), sheetCell(4,1))
 
 # Configuramos los objetos que representan los archivos de comisiones
 comisiones_files_collection = comisionesFileCollection()
@@ -201,6 +222,7 @@ cfi1.addReportSheet(s3)
 cfi1.addReportSheet(s4)
 cfi1.addReportSheet(s5)
 cfi1.addReportSheet(s6)
+cfi1.addReportSheet(s7)
 comisiones_files_collection.addItemById(1, cfi1)
 cfi2 = comisionesFileItem(2, 'Comisionantes_Pymes_All', inifile, period)
 cfi2.addReportSheet(s1)
@@ -209,201 +231,122 @@ cfi2.addReportSheet(s3)
 cfi2.addReportSheet(s4)
 cfi2.addReportSheet(s5)
 cfi2.addReportSheet(s6)
+cfi2.addReportSheet(s7)
 comisiones_files_collection.addItemById(2, cfi2)
 cfi3 = comisionesFileItem(3, 'Comisionantes_SolucionesNegocio_All', inifile, period)
 cfi3.addReportSheet(s1)
 cfi3.addReportSheet(s3)
+cfi3.addReportSheet(s7)
 comisiones_files_collection.addItemById(3, cfi3)
 cfi4 = comisionesFileItem(4, 'Comisionantes_Plataformas_All', inifile, period)
 cfi4.addReportSheet(s1)
 cfi4.addReportSheet(s3)
+cfi4.addReportSheet(s7)
 comisiones_files_collection.addItemById(4, cfi4)
 
 
 # Creamos la coleccion de objetos 'rc_items' que representan cada uno de los reportes a crearse
 rc_file = ReportConfigFile(inifile, comisiones_files_collection)
 rc_file.populateItems()
-file_ids = rc_file.getIdsOfUsedComisFiles()
+used_files_ids = rc_file.getIdsOfUsedComisFiles()
 rc_items = rc_file.getItems()
 
 # Abrimos los archivos que se van a necesitar para construir los reportes.
-for item in comisiones_files_collection.getItemsValues():
-  id_ = item.getId()
-  if id_ in file_ids:
-    fname_ = item.getFilename()
-    item.setFile(xw.Book(fname_))
-    item.setPandasExcelFile(pd.ExcelFile(fname_, encoding='utf-8'))
+for comis_file in comisiones_files_collection.getItemsValues():
+  id_ = comis_file.getId()
+  if id_ in used_files_ids:
+    logger.info("Procesando sección: " + comis_file.getSectionName())
+    fname_ = comis_file.getFilename()
+    logger.info("Abriendo archivo asociado a la sección")
+    comis_file.setXWFileLink(xw.Book(fname_))
+    logger.info("Guardando objeto <Pandas>.ExcelFile")
+    comis_file.setPandasExcelFile(pd.ExcelFile(fname_, encoding='utf-8'))
+    
+    # Aca debemos de interar por las paginas del libro y comenzar a cargar en variables que almacenen los dataframes
+    # Pero tambient enemos que usar los parametros configurados : Objeto reportSheet
+    for rsheet in comis_file.getReportSheets():
+      excel_file = comis_file.getPandasExcelFile()
+      excel_file = comis_file.getPandasExcelFile()
+      logger.info("Generando y guardando dataframe " + "hoja: " + rsheet.getName())
+      df = excel_file.parse( sheet_name=rsheet.getName(), skiprows=rsheet.getDataStartCell().r()-2, usecols=rsheet.getHeaderEndCell().c()-1)
+      comis_file.addDFSheetByName(df, rsheet.getName())
+      
 
 xl = win32com.gencache.EnsureDispatch('Excel.Application')
 
+#Procesamos todo
+logger.info("Se van a procesar: " + str(rc_file.getLenItems()) + " reportes")
 for item in rc_items:
+  logger.info("Procesando reporte: " + item.getDestFileBasename())
   destfile_xw = xw.Book()
   cfi_ = item.getComisFileItem()
   for sheet in cfi_.getReportSheets():
+    logger.info("  Hoja -> " + sheet.getName())
     #Link to file objects
     comis_file_xw = cfi_.getXWFileLink()
-    pandas_excelfile = cfi_.getPandasExcelFile()
 
     #Obteniendo punteros a hojas de libros.
-    comis_sheet_xw = comis_file_xw.sheets(sheet.getSheetName())
-    destfile_xw.sheets.add(name=sheet.getSheetName(), before="Sheet1")
-    new_sheet_xw = destfile_xw.sheets(sheet.getSheetName())
+    comis_sheet_xw = comis_file_xw.sheets(sheet.getName())
+    destfile_xw.sheets.add(name=sheet.getName(), before="Sheet1")
+    new_sheet_xw = destfile_xw.sheets(sheet.getName())
 
     #Leyendo parametros de hojas
     origin_sheet_headers_range = comis_sheet_xw.range(sheet.getHeaderStartCell_T(), sheet.getHeaderEndCell_T())
     new_sheet_header_range = new_sheet_xw.range(sheet.getHeaderStartCell_T(), sheet.getHeaderEndCell_T())
 
-    #Copiando cabeceras y pegando el formato
+    #Des-ocultando filas y columnas
+    comis_sheet_xw.api.Columns.EntireColumn.Hidden = False
+    comis_sheet_xw.api.Rows.EntireRow.Hidden = False
+    #Copiando cabeceras
     origin_sheet_headers_range.api.Copy()
-    new_sheet_header_range.api.PasteSpecial(Paste=constants.xlPasteFormats)
+    new_sheet_header_range.api.PasteSpecial(Paste=constants.xlPasteFormats)    
     new_sheet_header_range.value = origin_sheet_headers_range.value
     
-    #last_data_row = comis_sheet_xw.api.Cells(65536, 1).End(xw.constants.Direction.xlUp).Row
-    #last_data_col = comis_sheet_xw.api.Cells(sheet.getDataStartCell().r(), 10000).End(xw.constants.Direction.xlToLeft).Column
-    
-    # Old dataframe acquisicion
-    #data_range = comis_sheet_xw.range( sheet.getDataStartCell_T(), (last_data_row, last_data_col) )
-    #vvv = data_range.value
-    #df = data_range.options(pd.DataFrame, index=False).value
-    #df = pd.DataFrame(vvv)
+    #Referenciamos al dataframe ya cargado
+    df = cfi_.getDFSheetByName(sheet.getName())
 
-    #Convirtiendo en dataframe la data con una funcion de pandas.
-    df = pandas_excelfile.parse( sheet_name=sheet.getSheetName(), skiprows=sheet.getDataStartCell().r()-1, usecols=sheet.getHeaderEndCell().c()-1)
-    #df = df.applymap(lambda x: str(x) if isinstance(x, datetime.time) else x)
-    
     #Filtrando el dataframe de la data para que solo quede la gerencia, zonadeventa, etc de interes.
     df_cols_names = df.columns.values.tolist()
     scope_col_name = df_cols_names[item.getScopeColumnId()-1]
     scope_value = item.getScope()
-    df = df[df[scope_col_name] == scope_value]
+    scope_leyenda = item.getCanalLeyenda()
+
+    if sheet.getName() == "Leyenda":
+      if item.getScopeColumnId() in [4,5,6]:
+        #Todos que no son gerentes de canal, para filtrar la hoja leyenda se usara el nombre de canal.
+        scope = scope_leyenda
+      else:
+        scope = scope_value
+
+      df = df[(df[scope_col_name] == scope) | df[scope_col_name].isnull() | (df[scope_col_name] == scope_col_name)]
+    else:
+      df = df[df[scope_col_name] == scope_value]
+
     #Escribiendo en la hoja del reporte
-    new_sheet_xw.range( sheet.getDataStartCell().r()+1, sheet.getDataStartCell().c() ).options(index=False, header=None).value = df
-    
-    #Pegando formato en la data.
-    range_format = comis_sheet_xw.range( ( sheet.getDataStartCell().r()+1, 1 ), ( sheet.getDataStartCell().r()+1 , sheet.getHeaderEndCell().c() ) )
+    new_sheet_xw.range( sheet.getDataStartCell().r(), sheet.getDataStartCell().c() ).options(index=False, header=None).value = df
+
+    #Pegando formato de la primera fila de data en la demas data.
+    range_format = comis_sheet_xw.range( ( sheet.getDataStartCell().r(), 1 ), ( sheet.getDataStartCell().r(), sheet.getHeaderEndCell().c() ) )
     range_format.api.Copy()
 
-    dest_range_format = new_sheet_xw.range( ( sheet.getDataStartCell().r() + 1, 1 ), ( len(df.index) + sheet.getDataStartCell().r(), sheet.getHeaderEndCell().c() ) )
+    dest_range_format = new_sheet_xw.range( ( sheet.getDataStartCell().r(), 1 ), ( len(df.index) + sheet.getDataStartCell().r() - 1, sheet.getHeaderEndCell().c() ) )
     dest_range_format.api.PasteSpecial(Paste=constants.xlPasteFormats)
-    
-    print("s")
+
+    #Corrigiendo formato para el casod e hoja = Leyenda
+    if sheet.getName() == "Leyenda":
+      s_indices = list(np.where(df[scope_col_name] == scope_col_name)[0] + sheet.getDataStartCell().r() -2)
+      for row in s_indices:
+        origin_sheet_headers_range.api.Copy()
+        range_subheaders = new_sheet_xw.range((int(row), 1))
+        range_subheaders.api.PasteSpecial(Paste=constants.xlPasteFormats)    
 
   destfile_xw.save(item.getDestFile())
   destfile_xw.close()
 
+#Cerramos todos los archivos abiertos
+logger.info("Cerrando archivos abiertos.")
 for item in comisiones_files_collection.getItemsValues():
   id_ = item.getId()
-  if id_ in file_ids:
+  if id_ in used_files_ids:
     wx_file_link = item.getXWFileLink()
     wx_file_link.close()
-
-
-"""
-#Class that represent the loaded comisiones file
-class ReportFile(object):
-  def __init__(self, name, sheetsname, month, fileid):
-    
-    self.name = name
-    #fileid que figura en el archivo de reporteador plantilla
-    self.fileid = fileid
-    #Las paginas que se van a cargar como dataframes
-    self.sheetsnames = sheetsname
-    #El mes, sirve para saber el periodo del archivo de comisiones a cargar
-    self.month = month
-    #List of the loaded dataframes
-    self.df = []
-
-  def retrieveSheets(self):
-    inifile = fl.ReadIniFile(mercado="empresas")
-    section = fl.SectionObj(inifile, self.name, self.month)
-
-    for sheetname in self.sheetsnames:
-      section.setParameter('presetsheet', [sheetname])
-
-      
-      if sheetname == "Comisionantes":
-        section.setParameter('skiprows', 2)
-      else:
-        section.setParameter('skiprows', 0)
-
-      loader = fl.LoadFileProcess(section)
-      df = loader.loadFile()
-      self.df.append(df)
-
-"""
-
-"""
-#Variable globales
-
-
-month = '201908'
-
-sections_names = {  '1':'Comisionantes_Plataformas_All',
-                    '2':'Comisionantes_GrandesCuentas_All',
-                    '3':'Comisionantes_SolucionesNegocio_All',
-                    '4':'Comisionantes_Pymes_All'  }
-
-inifile = fl.ReadIniFile(mercado="empresas")
-
-sheetsnames = ['Comisionantes','Activaciones']
-file1 = ReportFile("Comisionantes_Plataformas_All", sheetsnames, month,4)
-file1.retrieveSheets()
-
-
-file2 = ReportFile("Comisionantes_GrandesCuentas_All", sheetsnames, month,1)
-file3 = ReportFile("Comisionantes_SolucionesNegocio_All", sheetsnames, month,3)
-file4 = ReportFile("Comisionantes_Pymes_All", sheetsnames, month,2)
-
-
-rfc = ReportFileContainer()
-rfc.addSheet(file1)
-rfc.addSheet(file2)
-rfc.addSheet(file3)
-rfc.addSheet(file4)
-
-
-inifile = ecomis.ReadIniFile(mercado="empresas")
-
-section_logins = ecomis.SectionObj(inifile,'Logins',month)
-loader_logins = ecomis.LoadFileProcess(section_logins)
-logins = loader_logins.loadFile()
-
-#Container of the row objects
-rows = []
-#Leemos el archivo de generacion de reportes:
-section_1 = fl.SectionObj(inifile,"Reporteador")
-section_1.reloadParameters()
-loader1 = fl.LoadFileProcess(section_1)
-df_report = loader1.loadFile()
-
-for row in df_report.head(79).itertuples():
-    if row.IFFILEEXPORTED == 1:
-      r_i_obj = ReportItem(row.SCOPE, row.FILEID, row.NOMBREGENERADO)
-      rows.append(r_i_obj)
-      r_i_obj.addReportSheet(rfc.getReportSheetByFileId(row.FILEID))
-
-"""
-
-#i=1 -> Comisiones Grandes Cuentas
-#i=2 -> Comisiones Pymes
-#i=3 -> Comisiones Soluciones de Negocio
-#i=4 -> Comisiones Plataformas Comerciales
-#Guardamos cada fila en un objeto que define la configuracion de un reporte.
-
-
-"""
-for i in rows:
-  if i.getFileId() == 1:
-    #leer dataframe de archivo tal
-  elif i.getFileId() == 2:
-  elif i.getFileId() == 3:
-  elif i.getFileId() == 4:
-  else:
-    raise Exception('Fie id not recognized')
-
-
-section_1 = fl.SectionObj(inifile,chosen_file,month)
-section_1.setParameter('presetsheet','Leyenda')
-loader1 = fl.LoadFileProcess(section_1)
-pesospltfrs = loader1.loadFile()
-"""
