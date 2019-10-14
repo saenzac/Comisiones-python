@@ -66,7 +66,7 @@ class ReportFileContainer(object):
    
 """
 class ReportConfigFile(object):
-  def __init__(self, inifile, comis_file_collection):
+  def __init__(self, inifile, comis_file_collection, periodo):
     self.inifile = inifile
     self.section = ecomis.SectionObj(self.inifile, 'ReporteConfig')
     self.loader = ecomis.LoadFileProcess(self.section)
@@ -74,6 +74,7 @@ class ReportConfigFile(object):
     self.datadir = self.section.getParameter("datadir")[0]
     self.report_items = []
     self.df = None
+    self.periodo = periodo
   def loadDf(self):
     self.df = self.loader.loadFile()
     self.df = self.df[self.df['GENFLAG']==1]
@@ -82,7 +83,7 @@ class ReportConfigFile(object):
     for index, row in self.df.iterrows():
       scope_ = row["SCOPE"]
       fileid_ = int(row["FILEID"])
-      destfile_ = posixpath.join(self.datadir,row["NOMBRE_ARCHIVO_DESTINO"])
+      destfile_ = posixpath.join(self.datadir, self.periodo + "_" + row["NOMBRE_ARCHIVO_DESTINO"])
       scope_col_id_ = int(row["SCOPE_COLUMN_ID"])
       canal_leyenda = row["CANAL_LEYENDA"]
       report_item = ReportConfigItem(scope_, fileid_, destfile_, scope_col_id_,canal_leyenda)
@@ -202,7 +203,7 @@ logger.propagate = False
 
 # Variables globales
 inifile = ecomis.ReadIniFile(mercado="empresas")
-period = '201908'
+period = '201909'
 
 # Configure the sheet objects
 s1 = reportSheet("Comisionantes", sheetCell(1,1), sheetCell(3,140), sheetCell(4,1))
@@ -246,7 +247,7 @@ comisiones_files_collection.addItemById(4, cfi4)
 
 
 # Creamos la coleccion de objetos 'rc_items' que representan cada uno de los reportes a crearse
-rc_file = ReportConfigFile(inifile, comisiones_files_collection)
+rc_file = ReportConfigFile(inifile, comisiones_files_collection, period)
 rc_file.populateItems()
 used_files_ids = rc_file.getIdsOfUsedComisFiles()
 rc_items = rc_file.getItems()
