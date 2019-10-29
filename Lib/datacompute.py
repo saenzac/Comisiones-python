@@ -226,12 +226,11 @@ class ComputeReversiones(ComputeProcess):
         df['ACCESS_TOTAL'] = df['ACCESS'] #+ df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']
         df['FECHA_PROCESO'] = pd.to_datetime(df['FECHA_PROCESO'], dayfirst = True, errors='coerce')
         df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, errors='coerce')
-        df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario     
-        #"""
+        df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario
+        
         df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x : 'Entre 0 y 90 dias'
                                                                       if x < 91 else ('Entre 91 y 180 dias' 
                                                                                       if x < 181 else 'Mayor a 180 dias' ))
-        #"""
 
         """
         df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x: 'Entre 0 y 240 dias'
