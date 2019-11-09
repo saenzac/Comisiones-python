@@ -297,7 +297,7 @@ for item in rc_items:
 
     #Obteniendo punteros a hojas de libros.
     comis_sheet_xw = comis_file_xw.sheets(sheet.getName())
-    destfile_xw.sheets.add(name=sheet.getName(), before="Sheet1")
+    destfile_xw.sheets.add(name=sheet.getName(), before="Hoja1")
     new_sheet_xw = destfile_xw.sheets(sheet.getName())
 
     #Leyendo parametros de hojas
