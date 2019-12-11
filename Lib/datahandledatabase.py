@@ -155,9 +155,9 @@ class DbDataProcess(object):
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         # El siguiente bloque se elimina una ves que se tome la nueva estructura de obtener la información se usa read_more_periods           
-        elif section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Deacs', 'View_Test']:
+        elif section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Deacs', 'View_Test', 'View_Garantias']:
             self.parameters['dboperation'] = 'read_more_periods'
-            ending = ['activacion' if section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Test'] else 'desactivacion']
+            ending = ['activacion' if section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Test', 'View_Garantias'] else 'desactivacion']
             keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         elif section in ['Reversiones']:

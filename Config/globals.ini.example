@@ -1,0 +1,4 @@
+[DEFAULT]
+mainpath=C:\\Users\\jsaenza\\OneDrive - Entel Peru S.A\\Comisiones
+databasepath=C:\\Users\\jsaenza\\OneDrive - Entel Peru S.A\\Comisiones\\SQLiteDB
+scriptspath=C:\\Users\\jsaenza\\Anaconda3\\Lib\\site-packages\\ecomis
