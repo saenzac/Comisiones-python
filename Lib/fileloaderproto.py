@@ -139,7 +139,7 @@ class SectionObj(object):
         l2 = []
 
         for item in self.parser.options(self.section): #
-            if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine' or item=='skip_cols_historical' or item=='take_many_months' or item=='no_mayus_colsname':
+            if item == 'skiprows' or item=='allcols' or item=='nodropna' or item=='read_engine' or item=='skip_cols_historical' or item=='take_many_months' or item=='no_mayus_colsname' or item=='no_month_prefix_in_filename':
                 l2.append(self.parser.getint(self.section,item)) # si la opcion es un entero
             elif item in ['cols', 'datadir', 'keyfile', 'defaultdir', 'colsconverted', 'colstochange', 'strcols', 'parsecols', 'colsdatetype','presetsheet']: # si en myconfig.ini la opcion es una lista
                 l2.append(ast.literal_eval(self.parser.get(self.section,item)))
@@ -166,12 +166,17 @@ class SectionObj(object):
 
         if 'no_mayus_colsname' not in self.parameters:
           self.parameters['no_mayus_colsname'] = 0
+          
+        if 'no_month_prefix_in_filename' not in self.parameters:
+            self.parameters['no_month_prefix_in_filename'] = 0        
 
         if self.month:
             self.periodo = yeardic[self.month]
-        if self.month :
+            self.parameters['periodo'] = self.periodo
+
+        if self.month and self.parameters['no_month_prefix_in_filename'] == 0:
           self.parameters['keyfile'] = [self.month + item for item in self.parameters['keyfile']]
-          self.parameters['periodo'] = self.periodo
+          
 
         if self.section == 'Logins' or self.section == 'Metricas_conjuntas':
           self.parameters['keyfile'] = keyfile

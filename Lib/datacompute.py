@@ -228,9 +228,9 @@ class ComputeReversiones(ComputeProcess):
         df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, errors='coerce')
         df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario
         
-        df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x : 'Entre 0 y 90 dias'
-                                                                      if x < 91 else ('Entre 91 y 180 dias' 
-                                                                                      if x < 181 else 'Mayor a 180 dias' ))
+        df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x : 'Entre 0 y 240 dias'
+                                                                      if x < 241 else ('Entre 241 y 360 dias' 
+                                                                                      if x < 361 else 'Mayor a 360 dias' ))
 
         """
         df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x: 'Entre 0 y 240 dias'
