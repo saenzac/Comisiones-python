@@ -203,25 +203,28 @@ logger.propagate = False
 
 # Variables globales
 inifile = ecomis.ReadIniFile(mercado="empresas")
-period = '201909'
+period = '201911'
 
 # Configure the sheet objects
 s1 = reportSheet("Comisionantes", sheetCell(1,1), sheetCell(3,155), sheetCell(4,1))
 s2 = reportSheet("Activaciones", sheetCell(1,1), sheetCell(1,100), sheetCell(2,1))
 s3 = reportSheet("Ajustes", sheetCell(1,1), sheetCell(1,10), sheetCell(2,1))
-s4 = reportSheet("Reversiones", sheetCell(1,1), sheetCell(1,42), sheetCell(2,1))
+s4 = reportSheet("Reversiones", sheetCell(1,1), sheetCell(1,46), sheetCell(2,1))
 s5 = reportSheet("Activaciones VAS", sheetCell(1,1), sheetCell(1,31), sheetCell(2,1))
 s6 = reportSheet("VPN", sheetCell(1,1), sheetCell(1,45), sheetCell(2,1))
 s7 = reportSheet("Leyenda", sheetCell(1,1), sheetCell(3,22), sheetCell(4,1))
 s8 = reportSheet("M2M", sheetCell(1,1), sheetCell(1,19), sheetCell(2,1))
 s9 = reportSheet("Activaciones", sheetCell(1,1), sheetCell(1,32), sheetCell(2,1))
-#s10 = reportSheet("Desactivaciones", sheetCell(1,1), sheetCell(1,55), sheetCell(2,1))
+s10 = reportSheet("Desactivaciones", sheetCell(1,1), sheetCell(1,55), sheetCell(2,1))
 #s11 = reportSheet("BaseInicio", sheetCell(1,1), sheetCell(1,30), sheetCell(2,1))
 s12 = reportSheet("CuotasVasdeVOZ", sheetCell(1,1), sheetCell(1,17), sheetCell(2,1))
+s13 = reportSheet("Resultados", sheetCell(1,1), sheetCell(1,17), sheetCell(2,1))
+s14 = reportSheet("Churn", sheetCell(1,1), sheetCell(1,9), sheetCell(2,1))
 
 # Configuramos los objetos que representan los archivos de comisiones
 comisiones_files_collection = comisionesFileCollection()
-cfi1 = comisionesFileItem(1, 'Comisionantes_GrandesCuentas_All', inifile, period)
+
+cfi1 = comisionesFileItem(1, 'Comisionantes_VentaRegionaEmpresa_All', inifile, period)
 cfi1.addReportSheet(s1)
 cfi1.addReportSheet(s2)
 cfi1.addReportSheet(s3)
@@ -230,29 +233,54 @@ cfi1.addReportSheet(s5)
 cfi1.addReportSheet(s6)
 cfi1.addReportSheet(s7)
 comisiones_files_collection.addItemById(1, cfi1)
+
 cfi2 = comisionesFileItem(2, 'Comisionantes_Pymes_All', inifile, period)
 cfi2.addReportSheet(s1)
 cfi2.addReportSheet(s2)
 cfi2.addReportSheet(s3)
-#cfi2.addReportSheet(s4)
+cfi2.addReportSheet(s4)
 cfi2.addReportSheet(s5)
 cfi2.addReportSheet(s6)
 cfi2.addReportSheet(s7)
 comisiones_files_collection.addItemById(2, cfi2)
+
 cfi3 = comisionesFileItem(3, 'Comisionantes_SolucionesNegocio_All', inifile, period)
 cfi3.addReportSheet(s1)
-cfi3.addReportSheet(s3)
-cfi3.addReportSheet(s7)
+#cfi3.addReportSheet(s3)
+#cfi3.addReportSheet(s7)
 cfi3.addReportSheet(s8)
 cfi3.addReportSheet(s9)
-#cfi3.addReportSheet(s10)
+cfi3.addReportSheet(s10)
 cfi3.addReportSheet(s12)
+cfi3.addReportSheet(s13)
 comisiones_files_collection.addItemById(3, cfi3)
+
 cfi4 = comisionesFileItem(4, 'Comisionantes_Plataformas_All', inifile, period)
 cfi4.addReportSheet(s1)
 cfi4.addReportSheet(s3)
 cfi4.addReportSheet(s7)
 comisiones_files_collection.addItemById(4, cfi4)
+
+cfi5 = comisionesFileItem(5, 'Comisionantes_Corporaciones_All', inifile, period)
+cfi5.addReportSheet(s1)
+cfi5.addReportSheet(s2)
+cfi5.addReportSheet(s3)
+cfi5.addReportSheet(s4)
+cfi5.addReportSheet(s5)
+cfi5.addReportSheet(s6)
+cfi5.addReportSheet(s7)
+comisiones_files_collection.addItemById(5, cfi5)
+
+cfi6 = comisionesFileItem(6, 'Comisionantes_GC_DDNN_IS_All', inifile, period)
+cfi6.addReportSheet(s1)
+cfi6.addReportSheet(s2)
+cfi6.addReportSheet(s3)
+cfi6.addReportSheet(s4)
+cfi6.addReportSheet(s5)
+cfi6.addReportSheet(s6)
+cfi6.addReportSheet(s7)
+cfi6.addReportSheet(s14)
+comisiones_files_collection.addItemById(6, cfi6)
 
 
 # Creamos la coleccion de objetos 'rc_items' que representan cada uno de los reportes a crearse
@@ -270,7 +298,7 @@ for comis_file in comisiones_files_collection.getItemsValues():
     logger.info("Abriendo archivo asociado a la sección")
     comis_file.setXWFileLink(xw.Book(fname_))
     logger.info("Guardando objeto <Pandas>.ExcelFile")
-    comis_file.setPandasExcelFile(pd.ExcelFile(fname_, encoding='utf-8'))
+    comis_file.setPandasExcelFile(pd.ExcelFile(fname_))
     
     # Aca debemos de interar por las paginas del libro y comenzar a cargar en variables que almacenen los dataframes
     # Pero tambient enemos que usar los parametros configurados : Objeto reportSheet
