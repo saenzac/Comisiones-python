@@ -203,7 +203,7 @@ logger.propagate = False
 
 # Variables globales
 inifile = ecomis.ReadIniFile(mercado="empresas")
-period = '201911'
+period = '201912'
 
 # Configure the sheet objects
 s1 = reportSheet("Comisionantes", sheetCell(1,1), sheetCell(3,155), sheetCell(4,1))
@@ -244,6 +244,7 @@ cfi2.addReportSheet(s6)
 cfi2.addReportSheet(s7)
 comisiones_files_collection.addItemById(2, cfi2)
 
+"""
 cfi3 = comisionesFileItem(3, 'Comisionantes_SolucionesNegocio_All', inifile, period)
 cfi3.addReportSheet(s1)
 #cfi3.addReportSheet(s3)
@@ -254,6 +255,7 @@ cfi3.addReportSheet(s10)
 cfi3.addReportSheet(s12)
 cfi3.addReportSheet(s13)
 comisiones_files_collection.addItemById(3, cfi3)
+"""
 
 cfi4 = comisionesFileItem(4, 'Comisionantes_Plataformas_All', inifile, period)
 cfi4.addReportSheet(s1)
