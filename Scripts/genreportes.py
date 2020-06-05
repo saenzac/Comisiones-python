@@ -3,6 +3,7 @@
 """
 Script que lee la plantilla de reporte donde cada fila representa un reporte a ser creado.
 Entonces cada fila se representa por un objeto que es instanciado de acuerdo a las propiedades de un reporte.
+s
 """
 import logging
 import ecomis
