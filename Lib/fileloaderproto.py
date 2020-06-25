@@ -46,9 +46,8 @@ class ReadIniFile(GenericInputFile):
         self.parserglobalsini = self.parseGlobalsIniFile()
         self.mainpath = self.parserglobalsini['DEFAULT']['mainpath']
 
-        logger.info("Values loaded from globals.ini:")
         for (each_key, each_val) in self.parserglobalsini.items("DEFAULT"):
-            logger.info(" * " + each_key + " " + each_val)
+            logger.info("[ReadIniFile]  " + each_key + " " + each_val)
         
         self.updateInis()
 
@@ -72,8 +71,8 @@ class ReadIniFile(GenericInputFile):
             self.datapath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/xlsx')
             self.testpath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/test')
 
-        logger.info('datapath value is ' + self.datapath)
-        logger.info('testpath value is ' + self.testpath)
+        logger.info('[ReadIniFile] datapath value is ' + self.datapath)
+        logger.info('[ReadIniFile] testpath value is ' + self.testpath)
 
     def parseIniFile(self):
         inifile = os.path.join(os.path.dirname(__file__), '../Config/myconfig.ini')
@@ -98,6 +97,12 @@ class ReadIniFile(GenericInputFile):
 
     def getTestPath(self):
         return self.testpath
+    
+    def getMainMercadoPath(self):
+        return self.parserini['DEFAULT']['mainpath_esp']
+    
+    def getMainPath(self):
+        return self.mainpath
 
     """Parsea el archivo de configuracion y devuelve un objeto con los resultados.
 
@@ -121,7 +126,7 @@ class SectionObj(object):
     def __init__(self, inifile, section, month = None):
         self.parser = inifile.getIniFileParser()
         self.section = section
-        self.month = month
+        self.month = month #e.g a string of this form '202005'
         self.datapath = inifile.getDataPath()
         self.parameters = None
         self.defaultpath = None
@@ -135,7 +140,7 @@ class SectionObj(object):
                     '201807':'jul-18','201808':'ago-18','201809':'sep-18','201810':'oct-18','201811':'nov-18','201812':'dic-18',
                     '201901':'ene-19','201902':'feb-19','201903':'mar-19','201904':'abr-19','201905':'may-19','201906':'jun-19',
                     '201907':'jul-19','201908':'ago-19','201909':'sep-19','201910':'oct-19','201911':'nov-19','201912':'dic-19',
-                    '202001':'ene-20','202002':'feb-20','202003':'mar-20','202004':'abr-20'}
+                    '202001':'ene-20','202002':'feb-20','202003':'mar-20','202004':'abr-20','202005':'may-20'}
 
         l2 = []
 
@@ -177,7 +182,6 @@ class SectionObj(object):
 
         if self.month and self.parameters['no_month_prefix_in_filename'] == 0:
           self.parameters['keyfile'] = [self.month + item for item in self.parameters['keyfile']]
-          
 
         if self.section == 'Logins' or self.section == 'Metricas_conjuntas':
           self.parameters['keyfile'] = keyfile
@@ -186,14 +190,27 @@ class SectionObj(object):
           if self.parameters['take_many_months'] == 0:
             self.parameters['cols'].append(self.periodo)
 
-        if not self.parameters['datadir'] :
-          self.parameters['datadir'] = [self.datapath]
+        if 'datadir' not in self.parameters:
+          #self.parameters['datadir'] = [self.datapath]
+          logger.warning("[SectionObj] datadir parameter not defined, please use GenerateInputsByPath() with a certain path to search for inputs")
+        else:
+          if not self.parameters['datadir']:
+              self.parameters['datadir'] = [self.datapath]
+          self.parameters['filelist'] = self.generateInputs()
 
-        filelist = self.generateInputs()
-        self.parameters['filelist'] = filelist
+        logger.info("[SectionObj] Parameter list generated:")
+        for key in self.parameters:
+            logger.info("[SectionObj]  " + key + "=" + str(self.parameters[key]) )
 
+
+    def GenerateInputsByPath(self, path):
+        #Use this function in case you want 
+        self.setParameter('datadir', [path]) #note that 'datadir' must be a list for that reason we put brackets.
+        self.parameters['filelist'] = self.generateInputs()
+        logger.info("[SectionObj]  filelist = " + str(self.parameters['filelist']))
 
     def generateInputs(self):
+        #This function uses values 'datadir' and 'keyfile' from self.parameters to generate a list of the files to process.
         datadir = self.parameters['datadir']
         keyfile = self.parameters ['keyfile']
         filelist = []

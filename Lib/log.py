@@ -12,7 +12,7 @@ class LogViewver(logging.Handler):
         logging.Handler.__init__(self, *args)
 
         #Output widget
-        self.output_gui = widgets.Output(layout=widgets.Layout(width='100%', height='250px', border='solid'))
+        self.output_gui = widgets.Output(layout=widgets.Layout(width='100%', height='600px', border='solid'))
 
         # optional take format
         # setFormatter function is derived from logging.Handler

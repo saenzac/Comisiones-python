@@ -204,7 +204,7 @@ logger.propagate = False
 
 # Variables globales
 inifile = ecomis.ReadIniFile(mercado="empresas")
-period = '202004'
+period = '202005'
 
 # Configure the sheet objects
 s1 = reportSheet("Comisionantes", sheetCell(1,1), sheetCell(3,165), sheetCell(4,1))
@@ -222,27 +222,13 @@ s12 = reportSheet("CuotasVasdeVOZ", sheetCell(1,1), sheetCell(1,17), sheetCell(2
 s13 = reportSheet("Resultados", sheetCell(1,1), sheetCell(1,17), sheetCell(2,1))
 s14 = reportSheet("Churn", sheetCell(1,1), sheetCell(1,9), sheetCell(2,1))
 s15 = reportSheet("Promedio6", sheetCell(1,1), sheetCell(1,17), sheetCell(2,1))
+s16 = reportSheet("Var Fact Cartera", sheetCell(1,1), sheetCell(1,17), sheetCell(2,1))
+s17 = reportSheet("Bonos", sheetCell(1,1), sheetCell(1,17), sheetCell(2,1))
 
 # Configuramos los objetos que representan los archivos de comisioness1
 comisiones_files_collection = comisionesFileCollection()
 
-cfi2 = comisionesFileItem(2, 'Comisionantes_Pymes_All', inifile, period)
-""""
-cfi2.addReportSheet(s1)
-cfi2.addReportSheet(s2)
-cfi2.addReportSheet(s3)
-cfi2.addReportSheet(s4)
-cfi2.addReportSheet(s5)
-cfi2.addReportSheet(s6)
-cfi2.addReportSheet(s7)
-"""
-cfi2.addReportSheet(s1)
-cfi2.addReportSheet(s3)
-cfi2.addReportSheet(s15)
-comisiones_files_collection.addItemById(2, cfi2)
-
 cfi1 = comisionesFileItem(1, 'Comisionantes_VentaRegionaEmpresa_All', inifile, period)
-""""
 cfi1.addReportSheet(s1)
 cfi1.addReportSheet(s2)
 cfi1.addReportSheet(s3)
@@ -250,12 +236,18 @@ cfi1.addReportSheet(s4)
 cfi1.addReportSheet(s5)
 cfi1.addReportSheet(s6)
 cfi1.addReportSheet(s7)
-"""
-cfi1.addReportSheet(s1)
-cfi1.addReportSheet(s3)
-cfi1.addReportSheet(s15)
+cfi1.addReportSheet(s17)
 comisiones_files_collection.addItemById(1, cfi1)
 
+cfi2 = comisionesFileItem(2, 'Comisionantes_Pymes_All', inifile, period)
+cfi2.addReportSheet(s1)
+cfi2.addReportSheet(s2)
+cfi2.addReportSheet(s3)
+cfi2.addReportSheet(s4)
+cfi2.addReportSheet(s5)
+cfi2.addReportSheet(s6)
+cfi2.addReportSheet(s7)
+comisiones_files_collection.addItemById(2, cfi2)
 
 """
 cfi3 = comisionesFileItem(3, 'Comisionantes_SolucionesNegocio_All', inifile, period)
@@ -274,27 +266,19 @@ cfi4 = comisionesFileItem(4, 'Comisionantes_Plataformas_All', inifile, period)
 cfi4.addReportSheet(s1)
 cfi4.addReportSheet(s3)
 cfi4.addReportSheet(s7)
-
-
 comisiones_files_collection.addItemById(4, cfi4)
-
 cfi5 = comisionesFileItem(5, 'Comisionantes_Corporaciones_All', inifile, period)
-"""
-fi5.addReportSheet(s1)
+
+cfi5.addReportSheet(s1)
 cfi5.addReportSheet(s2)
 cfi5.addReportSheet(s3)
 cfi5.addReportSheet(s4)
 cfi5.addReportSheet(s5)
 cfi5.addReportSheet(s6)
 cfi5.addReportSheet(s7)
-"""
-cfi5.addReportSheet(s1)
-cfi5.addReportSheet(s3)
-cfi5.addReportSheet(s15)
 comisiones_files_collection.addItemById(5, cfi5)
 
 cfi6 = comisionesFileItem(6, 'Comisionantes_GC_DDNN_IS_All', inifile, period)
-"""
 cfi6.addReportSheet(s1)
 cfi6.addReportSheet(s2)
 cfi6.addReportSheet(s3)
@@ -302,22 +286,11 @@ cfi6.addReportSheet(s4)
 cfi6.addReportSheet(s5)
 cfi6.addReportSheet(s6)
 cfi6.addReportSheet(s7)
+cfi6.addReportSheet(s16)
 #cfi6.addReportSheet(s14)
-"""
-cfi6.addReportSheet(s1)
-cfi6.addReportSheet(s3)
-cfi6.addReportSheet(s15)
 comisiones_files_collection.addItemById(6, cfi6)
 
 
-"""
-cfi7 = comisionesFileItem(7, 'Comisionantes_GC_Antiguo_All', inifile, period)
-cfi7.addReportSheet(s1)
-cfi7.addReportSheet(s2)
-cfi7.addReportSheet(s5)
-cfi7.addReportSheet(s7)
-comisiones_files_collection.addItemById(7, cfi7)
-"""
 
 # Creamos la coleccion de objetos 'rc_items' que representan cada uno de los reportes a crearse
 rc_file = ReportConfigFile(inifile, comisiones_files_collection, period)
@@ -336,13 +309,13 @@ for comis_file in comisiones_files_collection.getItemsValues():
     logger.info("Guardando objeto <Pandas>.ExcelFile")
     comis_file.setPandasExcelFile(pd.ExcelFile(fname_))
     
-    # Aca debemos de interar por las paginas del libro y comenzar a cargar en variables que almacenen los dataframes
+    # Aca debemos de iterar por las paginas del libro y comenzar a cargar en variables que almacenen los dataframes
     # Pero tambient enemos que usar los parametros configurados : Objeto reportSheet
     for rsheet in comis_file.getReportSheets():
       excel_file = comis_file.getPandasExcelFile()
       excel_file = comis_file.getPandasExcelFile()
       logger.info("Generando y guardando dataframe " + "hoja: " + rsheet.getName())
-      df = excel_file.parse( sheet_name=rsheet.getName(), skiprows=rsheet.getDataStartCell().r()-2, usecols=rsheet.getHeaderEndCell().c()-1)
+      df = excel_file.parse( sheet_name=rsheet.getName(), skiprows=rsheet.getDataStartCell().r()-2, usecols=range(0,rsheet.getHeaderEndCell().c()-1) )
       comis_file.addDFSheetByName(df, rsheet.getName())
       
 
@@ -375,7 +348,7 @@ for item in rc_items:
     origin_sheet_headers_range.api.Copy()
     new_sheet_header_range.api.PasteSpecial(Paste=constants.xlPasteFormats)    
     new_sheet_header_range.value = origin_sheet_headers_range.value
-    
+
     #Referenciamos al dataframe ya cargado
     df = cfi_.getDFSheetByName(sheet.getName())
 

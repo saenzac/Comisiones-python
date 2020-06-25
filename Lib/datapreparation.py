@@ -44,7 +44,8 @@ class DataframeCleaner(object):
         values_detected = df[df[panelcol].isin(logins[panelcol].drop_duplicates().tolist())]
         values_detected = values_detected.drop_duplicates(subset = [panelcol])
         for i in values_detected.index:
-            r1 = values_detected.ix[i].values[0]
+            #r1 = values_detected.ix[i].values[0]
+            r1 = values_detected.loc[i].values[0]
             r2 = logins.loc[logins[logins[panelcol] == r1].index, loginscol].values
             #print(r2) # Punto de Control - Asegura que no hay duplicados en login equivalentes
             df.loc[df[panelcol] == r1, panelcol] = r2
@@ -100,9 +101,12 @@ class DataframeCleaner(object):
         # 'POSICION' de 'values_detected' en la columna 'LOGINS' del dataframe data (panel de cuotas/resultados)
         # Si hay match entonces dicho valor se actualiza en 'values_detected' para luego ser seteado con la funcion self.setValues()
         for i in values_detected.index.values:
-            ifiltro = values_detected.ix[i].values[0]
-            imetrica = values_detected.ix[i].values[2]
-            itypeofkpi = values_detected.ix[i].values[3]
+            #ifiltro = values_detected.ix[i].values[0]
+            #imetrica = values_detected.ix[i].values[2]
+            #itypeofkpi = values_detected.ix[i].values[3]
+            ifiltro = values_detected.loc[i].values[0]
+            imetrica = values_detected.loc[i].values[2]
+            itypeofkpi = values_detected.loc[i].values[3]            
             iresultado = data.loc[(data[self.keycol] == ifiltro) & (data['METRICA'] == imetrica) & (data['TYPEOFKPI'] == itypeofkpi), self.periodo]
             if not(iresultado.empty):
                 df.loc[i, self.periodo] = iresultado.values[0] # por defecto retorna series, el [0] es para que retorne un valor
@@ -126,10 +130,14 @@ class DataframeCleaner(object):
         #df.to_csv('D:/Datos de Usuario/cleon/Documents/Capital Humano/Data Fuente Comisiones/test/'+ '_data.csv')
 
         for i in values_detected.index.values:
-            icol = values_detected.ix[i].values[0]
-            imetrica = values_detected.ix[i].values[1]
-            itypeofkpi = values_detected.ix[i].values[2]
-            iresultado = values_detected.ix[i].values[3]
+            #icol = values_detected.ix[i].values[0]
+            #imetrica = values_detected.ix[i].values[1]
+            #itypeofkpi = values_detected.ix[i].values[2]
+            #iresultado = values_detected.ix[i].values[3]
+            icol = values_detected.loc[i].values[0]
+            imetrica = values_detected.loc[i].values[1]
+            itypeofkpi = values_detected.loc[i].values[2]
+            iresultado = values_detected.loc[i].values[3]
             #print('Estos criterios {}, {}, {} tienen el resultado  {}'.format(icol,imetrica,itypeofkpi,iresultado)) # punto de control
             indices = df.query(qry)
             data.loc[indices.index.values, self.periodo] = iresultado
