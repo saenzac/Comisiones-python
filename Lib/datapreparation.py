@@ -11,7 +11,7 @@ from pandas import Series, DataFrame
 from datetime import datetime
 
 class DataframeCleaner(object):
-    
+
     def __init__(self, keycol, tipo, periodo):
         self.keycol = keycol
         self.tipo = tipo

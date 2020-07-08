@@ -223,7 +223,7 @@ class ComputeReversiones(ComputeProcess):
         positions = self.rules.drop_duplicates(['POSICION_EMPL'], keep='last')['POSICION_EMPL']
         df = df[df['POSICION_EMPL'].isin(positions)]  
 
-        df['ACCESS_TOTAL'] = df['ACCESS'] #+ df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']
+        #df['ACCESS_TOTAL'] = df['ACCESS'] #+ df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']
         df['FECHA_PROCESO'] = pd.to_datetime(df['FECHA_PROCESO'], dayfirst = True, errors='coerce')
         df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, errors='coerce')
         df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario
@@ -244,11 +244,11 @@ class ComputeReversiones(ComputeProcess):
 
         DEAC_DEFAULT = 0
         df[self.params['colchange']] = DEAC_DEFAULT
-        
+
         cols = self.rules.columns.tolist()
         colsfactor = ['FACTOR_REVERSION','PESO_CAPTURA','TIPO_REVERSION']
         #i = 0        
-        
+
         #reordering the cols
         #print(cols)
         #colsordered: ['FACTOR_REVERSION', 'PESO_CAPTURA', 'TIPO_REVERSION', 'POSICION_EMPL', 'RANGO_DESACTIVACION', 'PACK_CHIP', 'PORTABILIDAD', 'CATEGORIA_MOTIVO_DEAC', 'CATEGORIA_TECNOLOGIAEQUIPO']
@@ -263,7 +263,7 @@ class ComputeReversiones(ComputeProcess):
         #df.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
         #self.rules.to_csv('D:/Datos de Usuario/jsaenza/Documents/OneDrive - Entel Peru S.A/MercadoEmpresas/Data Fuente Comisiones/test/'+ 'reversiones_rules.csv')
         logging.debug("Aca escribia los archivos de reversiones brutas y reversiones rules")
-        for row in self.rules.itertuples():    
+        for row in self.rules.itertuples():
             # Removiendo el indice y las columnas que tienen pesos o factores
             #i = i + 1
             rowfactor = row[1:len(colsfactor) + 1]
@@ -291,7 +291,6 @@ class ComputeReversiones(ComputeProcess):
 
          # Ingresando el cálculo de penalidad
             #print(df.columns)
-
          
             rowspenal = df[df['PENALIDAD'] > 0].index.values
             df.loc[rowspenal, self.params['colchange']]= -df.loc[rowspenal,'COMISION_UNITARIA'] * (1-df.loc[rowspenal,'PENALIDAD'])
