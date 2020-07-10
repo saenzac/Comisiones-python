@@ -219,28 +219,19 @@ class ComputeReversiones(ComputeProcess):
         # Se descartan "contratos" vendidos por personas que no figuran en la tabla de empleados.
         df = df[df['POSICION_EMPL'].notnull()]
 
-        #
+        #Eliminamos posiciones repetidas de la tabla reversiones rules de db
         positions = self.rules.drop_duplicates(['POSICION_EMPL'], keep='last')['POSICION_EMPL']
+        
+        #Del view reversiones 
         df = df[df['POSICION_EMPL'].isin(positions)]  
 
-        #df['ACCESS_TOTAL'] = df['ACCESS'] #+ df['ACCESSBOLSA'] + df['ACCESSPAQUETE'] + df['ACCESSLICENCIA']
         df['FECHA_PROCESO'] = pd.to_datetime(df['FECHA_PROCESO'], dayfirst = True, errors='coerce')
         df['FEC_ACTIV'] = pd.to_datetime(df['FEC_ACTIV'], dayfirst = True, errors='coerce')
         df['DIAS_DESACTIVADOS'] = (df['FECHA_PROCESO'] - df['FEC_ACTIV']).dt.days # dias calendario
         
         df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x : 'Entre 0 y 240 dias'
                                                                       if x < 241 else ('Entre 241 y 360 dias' 
-                                                                                      if x < 361 else 'Mayor a 360 dias' ))
-
-        """
-        df['RANGO_DESACTIVACION'] = df['DIAS_DESACTIVADOS'].apply(lambda x: 'Entre 0 y 240 dias'
-        if x < 241 else ('Entre 241 y 360 dias'
-                        if x < 361 else 'Mayor a 360 dias'))
-        """
-
-        #date1 = pd.Timestamp('2017-03-01')
-        #date2 = pd.Timestamp('2017-09-01')
-        #df['STATUS_APLICACION'] = df['FEC_ACTIV'].apply(lambda x : 'antes de Septiembre 2017' if x < date2 else 'despues de Septiembre 2017')        
+                                                                                      if x < 361 else 'Mayor a 360 dias' ))    
 
         DEAC_DEFAULT = 0
         df[self.params['colchange']] = DEAC_DEFAULT
@@ -265,7 +256,6 @@ class ComputeReversiones(ComputeProcess):
         logging.debug("Aca escribia los archivos de reversiones brutas y reversiones rules")
         for row in self.rules.itertuples():
             # Removiendo el indice y las columnas que tienen pesos o factores
-            #i = i + 1
             rowfactor = row[1:len(colsfactor) + 1]
             factors = rowfactor[0] * rowfactor[1]
             #len(colsfactor) = 3
@@ -277,23 +267,25 @@ class ComputeReversiones(ComputeProcess):
             criterios = [x for x in match_list if x != '']
             columns = [colscriterios[x] for x in realindex]
             rowstochange = df[df[columns].isin(criterios).all(axis = 1)].index.tolist()
-            #print(rowfactor[2]) # Punto de Test
-            #print(i)
-            if rowfactor[2] != 'NETEO':
+
+            if rowfactor[2] == 'COMISION_UNITARIA':
+                df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * df.loc[rowstochange, "ACCESS_EJECUTIVO"] * factors
+                df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION COMISION UNITARIA'
+            else:
                 df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * factors
                 df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION'
-            else:
+            #else:
                 #print(rowstochange)
-                df.loc[rowstochange, self.params['colchange']] = 0
-                df.loc[rowstochange, 'TIPO_REVERSION'] = 'NETEO'
+             #   df.loc[rowstochange, self.params['colchange']] = 0
+             #   df.loc[rowstochange, 'TIPO_REVERSION'] = 'NETEO'
                 #print(df.loc[rowstochange, 'TIPO_REVERSION']) # Punto de Control
                 #df.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas' + str(i) + '.csv')
 
          # Ingresando el cálculo de penalidad
             #print(df.columns)
          
-            rowspenal = df[df['PENALIDAD'] > 0].index.values
-            df.loc[rowspenal, self.params['colchange']]= -df.loc[rowspenal,'COMISION_UNITARIA'] * (1-df.loc[rowspenal,'PENALIDAD'])
+            ##rowspenal = df[df['PENALIDAD'] > 0].index.values
+            ##df.loc[rowspenal, self.params['colchange']]= -df.loc[rowspenal,'COMISION_UNITARIA'] * (1-df.loc[rowspenal,'PENALIDAD'])
             
         #df.to_csv('D:/Datos de Usuario/cleon/Documents/Mercado Empresas/Data Fuente Comisiones/test/'+ 'reversiones_brutas.csv')
         return df
