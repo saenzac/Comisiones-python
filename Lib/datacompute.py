@@ -273,7 +273,17 @@ class ComputeReversiones(ComputeProcess):
                 df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION COMISION UNITARIA'
             else:
                 df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * factors
-                df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION'
+                df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION ACCESS PURO'
+            
+        #No revertimos los contratos cuyo vendedor en el mes de activacion no comisiono.
+        indices_contratos_no_comisionaron = df[df['COMISIÓN'] == 0].index.values
+        df.loc[indices_contratos_no_comisionaron, self.params['colchange']] = 0
+        df.loc[indices_contratos_no_comisionaron, 'TIPO_REVERSION'] = 'No comisiono'
+
+        #No revertimos los contratos que se pagaron con factor de mesa de precios por duracion menor a 18 meses.
+        indices_contratos_factor18m = df[df['TIENE_FACTOR_MESA_P_MENOR18M'] == 1].index.values
+        df.loc[indices_contratos_factor18m, self.params['colchange']] = 0
+        df.loc[indices_contratos_factor18m, 'TIPO_REVERSION'] = 'Factor MP < 18M'
             #else:
                 #print(rowstochange)
              #   df.loc[rowstochange, self.params['colchange']] = 0
