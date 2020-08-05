@@ -75,5 +75,5 @@ class GenCalendar:
     f.close()
 
 
-a = GenCalendar("06","2020")
+a = GenCalendar("08","2020")
 a.work()
