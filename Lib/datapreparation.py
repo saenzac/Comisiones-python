@@ -381,7 +381,7 @@ class PlainDataFrame(DataFramePreparation):
 
         DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-        if self.params['section'] in ['tblEmpleados', 'tblVentaSSAA', 'tblVentaSSAANew', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia', 'tblGarantias']:
+        if self.params['section'] in ['tblEmpleados', 'tblVentaSSAA', 'tblVentaSSAANew', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia', 'tblGarantias','tblChurn']:
             ending = ['ACTIVACION']
         elif self.params['section'] in ['tblDeacs', 'tblDeacSSAA']:
             ending = ['DESACTIVACION']
