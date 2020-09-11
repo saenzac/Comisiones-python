@@ -268,12 +268,17 @@ class ComputeReversiones(ComputeProcess):
             columns = [colscriterios[x] for x in realindex]
             rowstochange = df[df[columns].isin(criterios).all(axis = 1)].index.tolist()
 
-            if rowfactor[2] == 'COMISION_UNITARIA':
-                df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * df.loc[rowstochange, "ACCESS_EJECUTIVO"] * factors
+            tipo_de_reversion = rowfactor[2]
+            if tipo_de_reversion == 'COMISION_UNITARIA':
+                df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, tipo_de_reversion] * df.loc[rowstochange, "ACCESS_EJECUTIVO"] * factors
                 df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION COMISION UNITARIA'
-            else:
-                df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, rowfactor[2]] * factors
+            elif tipo_de_reversion == 'ACCESS':
+                factor_mesa_precios = df.loc[rowstochange, "FACTOR_MESA_PRECIOS"]
+                df.loc[rowstochange, self.params['colchange']] = - df.loc[rowstochange, tipo_de_reversion] * factors * factor_mesa_precios
                 df.loc[rowstochange, 'TIPO_REVERSION'] = 'REVERSION ACCESS PURO'
+            else:
+                raise Exception("Tipo de reversion invalido, revisar tabla DB tblsopreversiones_rules")
+                sys.exit(1)
             
         #No revertimos los contratos cuyo vendedor en el mes de activacion no comisiono.
         indices_contratos_no_comisionaron = df[df['COMISIÓN'] == 0].index.values
