@@ -299,6 +299,7 @@ class ReadExcelFile(GenericInputFile):
         #converters.update(converters_date)
 
         for item in filelist:
+            logger.info("Reading item -> " + item)
             df0 = pd.read_excel(item, 
                                 sheet_name=self.parameters['presetsheet'][0], 
                                 na_values = self.parameters['navalues'], 

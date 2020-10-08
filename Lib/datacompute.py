@@ -281,7 +281,7 @@ class ComputeReversiones(ComputeProcess):
                 sys.exit(1)
             
         #No revertimos los contratos cuyo vendedor en el mes de activacion no comisiono.
-        indices_contratos_no_comisionaron = df[df['COMISIÓN'] == 0].index.values
+        indices_contratos_no_comisionaron = df[df['COMISION'] == 0].index.values
         df.loc[indices_contratos_no_comisionaron, self.params['colchange']] = 0
         df.loc[indices_contratos_no_comisionaron, 'TIPO_REVERSION'] = 'No comisiono'
 

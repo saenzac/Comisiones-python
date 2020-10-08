@@ -385,7 +385,7 @@ class PlainDataFrame(DataFramePreparation):
             ending = ['ACTIVACION']
         elif self.params['section'] in ['tblDeacs', 'tblDeacSSAA']:
             ending = ['DESACTIVACION']
-        elif self.params['section'] in ['tblResultadosComisiones']:
+        elif self.params['section'] in ['tblIndicadores1', 'tblIndicadores2']:
             ending = ['PRODUCCION']
         else:
             ending = ['migracion']
