@@ -70,7 +70,13 @@ class ReadIniFile(GenericInputFile):
             self.parserini['DEFAULT']['mainpath_esp'] = posixpath.join(self.mainpath, 'MercadoPersonas')
             self.datapath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/xlsx')
             self.testpath = posixpath.join(self.mainpath, 'MercadoPersonas/Data Fuente Comisiones/test')
-
+        elif self.mercado == "planeamiento":
+            self.parserini['DEFAULT']['mercado'] = "planeamiento"
+            self.parserdbini['DEFAULT']['mercado'] = "planeamiento"
+            self.parserini['DEFAULT']['mainpath_esp'] = posixpath.join(self.mainpath, 'espacio_trabajo')
+            self.datapath = posixpath.join(self.mainpath, 'espacio_trabajo/xlsx')
+            self.testpath = posixpath.join(self.mainpath, 'espacio_trabajo/test')
+        
         logger.info('[ReadIniFile] datapath value is ' + self.datapath)
         logger.info('[ReadIniFile] testpath value is ' + self.testpath)
 

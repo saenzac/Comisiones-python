@@ -370,6 +370,8 @@ class DbDataProcess(object):
             self.dbname = 'mercado_empresas_db.sqlite'
         elif self.parser['DEFAULT']['mercado'] == "personas":
             self.dbname = 'mercado_personas_db.sqlite'
+        elif self.parser['DEFAULT']['mercado'] == "planeamiento":
+            self.dbname = 'BD1.sqlite'
         else:
             logger.error("Bad argument selection")
             raise Exception("Neither mercado 'empresas' or 'personas' selected")
