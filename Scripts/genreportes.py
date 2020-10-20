@@ -204,7 +204,7 @@ logger.propagate = False
 
 # Variables globales
 inifile = ecomis.ReadIniFile(mercado="empresas")
-period = '202008'
+period = '202009'
 
 # Configure the sheet objects
 s1 = reportSheet("Comisionantes", sheetCell(1,1), sheetCell(3,165), sheetCell(4,1))
