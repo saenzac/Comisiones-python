@@ -176,11 +176,11 @@ class DataframeCleaner(object):
         """ data es objetivos o panel de plataformas """
         
         replvalues1 = 'Objetivo|objetivo|Cuota|cuota'
-        replvalues2 = 'Obj.|Obj|obj|Ob.'
+        replvalues2 = 'Obj.|Obj|obj|Ob.|OBJ.|OBJ'
         replvalues3 = '(- .)$|(- )$|\(\)$|\(\.\)$'
         replvalues4 = 'Venta TPF' # esta secuencia es importante para detectar TPF antes de TP
         replvalues5 = 'Venta TP|Venta TC|Venta Islas'       
-        objvalues = 'Obj|obj|Cuota|cuota'
+        objvalues = 'Obj|OBJ|obj|Cuota|cuota'
         navalues = 'DIV/0!.*|.*REF.*|,|-|2da|2d%|.'
         new_kpi_superv = 'Ventas Totales'
 
@@ -381,7 +381,7 @@ class PlainDataFrame(DataFramePreparation):
 
         DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-        if self.params['section'] in ['tblINAR','tblEmpleados', 'tblVentaSSAA', 'tblVentaSSAANew', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia', 'tblGarantias','tblChurn']:
+        if self.params['section'] in ['tblINAR','tblEmpleados', 'tblVentaSSAA', 'tblVentaSSAANew', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia', 'tblGarantias','tblChurn','InsertarPadronEmpleados']:
             ending = ['ACTIVACION']
         elif self.params['section'] in ['tblDeacs', 'tblDeacSSAA']:
             ending = ['DESACTIVACION']
