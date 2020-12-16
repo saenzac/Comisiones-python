@@ -381,20 +381,21 @@ class PlainDataFrame(DataFramePreparation):
 
         DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-        if self.params['section'] in ['tblINAR','tblEmpleados', 'tblVentaSSAA', 'tblVentaSSAANew', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia', 'tblGarantias','tblChurn','InsertarPadronEmpleados']:
-            ending = ['ACTIVACION']
-        elif self.params['section'] in ['tblDeacs', 'tblDeacSSAA']:
-            ending = ['DESACTIVACION']
-        elif self.params['section'] in ['tblIndicadores1', 'tblIndicadores2']:
-            ending = ['PRODUCCION']
-        else:
-            ending = ['migracion']
+        #if self.params['section'] in ['tblINAR','tblEmpleados', 'tblVentaSSAA', 'tblVentaSSAANew', 'tblPaquetes', 'tblVentas', 'tblVentasPersonas', 'tblJerarquia', 'tblGarantias','tblChurn','InsertarPadronEmpleados']:
+        #    ending = ['ACTIVACION']
+        #elif self.params['section'] in ['tblDeacs', 'tblDeacSSAA']:
+        #    ending = ['DESACTIVACION']
+        ##elif self.params['section'] in ['tblIndicadores1', 'tblIndicadores2']:
+        #   ending = ['PRODUCCION']
+        #else:
+        #    ending = ['migracion']
         
-        keyperiod = 'PERIODO_' + ending[0]
+        #keyperiod = 'PERIODO_' + ending[0]
+        keyperiod = 'PERIODO_'
 
         df = data.copy()
         df['FECHA_ACTUALIZACION'] = datetime.now()
-        
+
         #Agregando el periodo
         df[keyperiod] = df[self.params['colref']].map(lambda x: 100 * x.year + x.month)
         

@@ -234,6 +234,7 @@ class ComputeReversiones(ComputeProcess):
                                                                                       if x < 361 else 'Mayor a 360 dias' ))    
 
         DEAC_DEFAULT = 0
+        #self.params['colchange'] = REVERSION
         df[self.params['colchange']] = DEAC_DEFAULT
 
         cols = self.rules.columns.tolist()
@@ -261,6 +262,8 @@ class ComputeReversiones(ComputeProcess):
             #len(colsfactor) = 3
             #row es una tupla, al hacer un slice sigue siendo una tupla.
             rowcriterios = row[len(colsfactor) + 1:]
+            if row[4] == "EJECUTIVO DE DESARROLLO PYME":
+                l = 22
             #convierte la tupla rowcriterios a una lista
             match_list = list(rowcriterios)
             realindex = [x for x in range(len(match_list)) if match_list[x] != '']

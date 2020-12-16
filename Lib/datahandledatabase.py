@@ -146,25 +146,27 @@ class DbDataProcess(object):
       Carga data de una tabla hacia un dataframe
       Si la ejecucion previa de una sentencia sql es requerida usar primero la funcion self.pre_loadData()
     """
+    
     def loadData(self, section):
+        keyperiod = 'periodo_'
         self.section = section
         self.configParameters()
         if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz','View_Deacs_SSAA']:
             self.parameters['dboperation'] = 'read_complex'
-            ending = ['activacion' if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz'] else 'desactivacion']
-            keyperiod = 'periodo_' + ending[0]
+            #ending = ['activacion' if section in ['Gross_Comision', 'Paquetes','View_VAS_Voz'] else 'desactivacion']
+            #keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         # El siguiente bloque se elimina una ves que se tome la nueva estructura de obtener la información se usa read_more_periods           
         elif section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Deacs', 'View_Test', 'View_Garantias']:
             self.parameters['dboperation'] = 'read_more_periods'
-            ending = ['activacion' if section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Test', 'View_Garantias'] else 'desactivacion']
-            keyperiod = 'periodo_' + ending[0]
+            #ending = ['activacion' if section in ['View_Ventas', 'View_Inar_Tiendas_Propias_Blanks', 'View_Ventas_SSAA', 'View_Test', 'View_Garantias'] else 'desactivacion']
+            #keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         elif section in ['Reversiones']:
             #Leemos de la tabla temporal creada en la funcion pre_loadData()
             self.parameters['dboperation'] = 'read_complex_temp_table'
-            ending = ['desactivacion']
-            keyperiod = 'periodo_' + ending[0]
+            #ending = ['desactivacion']
+            #keyperiod = 'periodo_' + ending[0]
             self.parameters['keyperiod'] = keyperiod
         else:
             self.parameters['dboperation'] = 'read'
@@ -353,7 +355,7 @@ class DbDataProcess(object):
         #Delete temporal table and copy view to that temporal table.
         elif parameters['dboperation'] == 'create_temp_table_from_view':
             sql = 'CREATE TABLE ' +  tblname + '_temp' +  ' AS SELECT * FROM ' + parameters['view'];
-            sqldel = 'DROP TABLE ' + tblname + '_temp'
+            sqldel = 'DROP TABLE IF EXISTS ' + tblname + '_temp'
 
         #Read from temporal table
         elif parameters['dboperation'] == 'read_complex_temp_table':
