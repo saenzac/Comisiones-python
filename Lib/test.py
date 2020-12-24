@@ -13,7 +13,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 logger.propagate = False
 
-month = '202010'
+month = '202011'
 
 inifile = ecomis.ReadIniFile(mercado="empresas")
 defaultpath = inifile.getDataPath()
@@ -59,7 +59,7 @@ periodo = section_logins.getParameter('periodo')
 
 paramspltfrs= {'tipo' : 'plataformas',
                'periodo' : periodo.upper(),
-               'keycol': 'NOMBRES',
+               'keycol': 'DATOS',
                'logins' : logins, 
                'metricasconjuntas' : metricasconjuntas,
                'kpis' : kpispltfrs,
